@@ -1,0 +1,3382 @@
+<title>Loading Reports Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    color-scheme: light;
+    --rail-bg:#10141b;
+    --rail-bg-raised:#171d27;
+    --rail-text:#eef1f5;
+    --rail-text-dim:#8b93a3;
+    --rail-accent:#5b9df0;
+    --rail-border:rgba(255,255,255,0.08);
+
+    --surface-page:#eef1f4;
+    --surface-card:#ffffff;
+    --surface-card-hover:#fbfcfd;
+    --text-primary:#10141b;
+    --text-secondary:#4b5563;
+    --text-muted:#7c8798;
+    --border:rgba(16,20,27,0.10);
+    --border-strong:rgba(16,20,27,0.16);
+    --accent:#2a78d6;
+    --accent-wash:rgba(42,120,214,0.10);
+    --shadow: 0 1px 2px rgba(16,20,27,0.04), 0 8px 24px -12px rgba(16,20,27,0.18);
+
+    --chart-grid:#e1e0d9;
+    --chart-axis:#c3c2b7;
+    --chart-muted:#898781;
+    --good:#0ca30c;
+    --warning:#c98500;
+
+    --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --surface-page:#0b0d11;
+      --surface-card:#151920;
+      --surface-card-hover:#1a1f28;
+      --text-primary:#f5f7fa;
+      --text-secondary:#b6bec9;
+      --text-muted:#7c8798;
+      --border:rgba(255,255,255,0.09);
+      --border-strong:rgba(255,255,255,0.16);
+      --accent:#5b9df0;
+      --accent-wash:rgba(91,157,240,0.14);
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+      --chart-grid:#262b33;
+      --chart-axis:#383835;
+      --chart-muted:#8992a0;
+      --good:#0ca30c;
+      --warning:#fab219;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --surface-page:#0b0d11;
+    --surface-card:#151920;
+    --surface-card-hover:#1a1f28;
+    --text-primary:#f5f7fa;
+    --text-secondary:#b6bec9;
+    --text-muted:#7c8798;
+    --border:rgba(255,255,255,0.09);
+    --border-strong:rgba(255,255,255,0.16);
+    --accent:#5b9df0;
+    --accent-wash:rgba(91,157,240,0.14);
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    --chart-grid:#262b33;
+    --chart-axis:#383835;
+    --chart-muted:#8992a0;
+    --good:#0ca30c;
+    --warning:#fab219;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background:var(--surface-page);
+    color:var(--text-primary);
+    font-family:var(--font-ui);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4{ margin:0; text-wrap:balance; }
+  p{ margin:0; }
+  button{ font-family:inherit; }
+  ::selection{ background:var(--accent-wash); }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  /* ---------- App shell ---------- */
+  .app{ display:flex; min-height:100vh; }
+
+  /* ---------- Sidebar rail ---------- */
+  .rail{
+    width:272px;
+    flex-shrink:0;
+    background:var(--rail-bg);
+    color:var(--rail-text);
+    display:flex;
+    flex-direction:column;
+    position:fixed;
+    top:0; left:0; bottom:0;
+    z-index:40;
+    transition:transform .28s ease;
+  }
+  .rail-brand{
+    padding:22px 20px 18px;
+    border-bottom:1px solid var(--rail-border);
+    display:flex; align-items:center; gap:12px;
+  }
+  .rail-brand-mark{
+    width:36px; height:36px; border-radius:9px;
+    background:linear-gradient(155deg,#3987e5,#1c5cab);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+  }
+  .rail-brand-mark svg{ width:19px; height:19px; }
+  .rail-brand-text .t{ font-weight:600; font-size:14.5px; line-height:1.25; letter-spacing:.1px; }
+  .rail-brand-text .s{ font-family:var(--font-mono); font-size:10.5px; color:var(--rail-text-dim); letter-spacing:.4px; text-transform:uppercase; margin-top:2px; }
+
+  .rail-search{ padding:14px 16px 8px; }
+  .rail-search-box{
+    display:flex; align-items:center; gap:8px;
+    background:var(--rail-bg-raised);
+    border:1px solid var(--rail-border);
+    border-radius:8px;
+    padding:8px 10px;
+  }
+  .rail-search-box svg{ width:14px; height:14px; color:var(--rail-text-dim); flex-shrink:0; }
+  .rail-search-box input{
+    background:none; border:none; outline:none; color:var(--rail-text);
+    font-size:12.5px; width:100%; font-family:var(--font-ui);
+  }
+  .rail-search-box input::placeholder{ color:var(--rail-text-dim); }
+
+  .rail-nav{
+    flex:1; overflow-y:auto;
+    padding:6px 12px 16px;
+  }
+  .rail-eyebrow{
+    font-family:var(--font-mono); font-size:10px; letter-spacing:.7px; text-transform:uppercase;
+    color:var(--rail-text-dim); padding:14px 10px 8px;
+  }
+  .rail-item{
+    display:flex; align-items:center; gap:11px;
+    width:100%; text-align:left;
+    padding:9px 10px; margin-bottom:2px;
+    border-radius:8px; border:1px solid transparent;
+    background:none; color:var(--rail-text-dim);
+    cursor:pointer; font-size:13px; font-weight:500;
+    transition:background .12s ease, color .12s ease;
+  }
+  .rail-item .ic{ width:17px; height:17px; flex-shrink:0; opacity:.85; }
+  .rail-item .num{ font-family:var(--font-mono); font-size:10px; color:var(--rail-text-dim); opacity:.7; width:14px; flex-shrink:0; }
+  .rail-item:hover{ background:var(--rail-bg-raised); color:var(--rail-text); }
+  .rail-item.active{ background:rgba(91,157,240,0.14); color:#fff; border-color:rgba(91,157,240,0.3); }
+  .rail-item.active .ic{ color:var(--rail-accent); opacity:1; }
+  .rail-item.hidden{ display:none; }
+
+  .rail-foot{
+    padding:14px 20px 18px; border-top:1px solid var(--rail-border);
+    font-size:11px; color:var(--rail-text-dim); line-height:1.5;
+  }
+  .rail-foot b{ color:var(--rail-text); font-weight:600; }
+
+  .rail-scrim{
+    position:fixed; inset:0; background:rgba(0,0,0,0.45);
+    z-index:35; opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .rail-scrim.show{ opacity:1; pointer-events:auto; }
+
+  /* ---------- Main ---------- */
+  .main{
+    margin-left:272px;
+    flex:1; min-width:0;
+    display:flex; flex-direction:column;
+  }
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; gap:14px;
+    padding:16px 28px;
+    background:color-mix(in srgb, var(--surface-page) 88%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .hamburger{
+    display:none;
+    width:34px; height:34px; border-radius:8px;
+    border:1px solid var(--border-strong); background:var(--surface-card);
+    color:var(--text-primary);
+    align-items:center; justify-content:center; cursor:pointer;
+    flex-shrink:0;
+  }
+  .hamburger svg{ width:17px; height:17px; }
+  .topbar-titles{ min-width:0; }
+  .topbar-titles h1{ font-size:19px; font-weight:600; letter-spacing:-.1px; }
+  .topbar-titles p{ font-size:12.5px; color:var(--text-muted); margin-top:3px; }
+  .topbar-meta{
+    margin-left:auto; display:flex; align-items:center; gap:8px;
+    font-family:var(--font-mono); font-size:11px; color:var(--text-muted);
+    white-space:nowrap;
+  }
+  .live-dot{ width:6px; height:6px; border-radius:50%; background:var(--good); box-shadow:0 0 0 3px color-mix(in srgb, var(--good) 20%, transparent); flex-shrink:0; }
+
+  /* ---------- Filter bar (date range + plant cancel/refresh) ---------- */
+  .filter-bar{
+    position:sticky; top:var(--topbar-h, 66px); z-index:15;
+    display:none; flex-wrap:wrap; align-items:flex-start; gap:18px;
+    padding:11px 28px; border-bottom:1px solid var(--border);
+    background:color-mix(in srgb, var(--surface-page) 92%, transparent);
+    backdrop-filter:blur(10px);
+  }
+  .filter-bar.show{ display:flex; }
+  .filt-label{ display:block; font-family:var(--font-mono); font-size:10px; letter-spacing:.4px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px; }
+  .date-range{ display:flex; align-items:flex-end; gap:8px; position:relative; }
+  .date-field{ position:relative; }
+  .date-box{
+    border:1px solid var(--border-strong); background:var(--surface-card); color:var(--text-primary);
+    font-family:var(--font-mono); font-size:12px; font-weight:600; padding:6px 10px; border-radius:8px;
+    cursor:pointer; min-width:112px; text-align:left;
+  }
+  .date-box:hover{ border-color:var(--accent); }
+  .date-box:disabled{
+    cursor:not-allowed;
+    opacity:.55;
+    background:var(--surface-page);
+    border-style:dashed;
+  }
+  .date-box:disabled:hover{ border-color:var(--border-strong); }
+  .date-reset{
+    border:none; background:none; color:var(--accent); font-size:11.5px; font-weight:600;
+    cursor:pointer; padding:6px 2px; text-decoration:underline; align-self:flex-end;
+  }
+  .cal-pop{
+    position:fixed; z-index:60; width:236px; background:var(--surface-card);
+    border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:10px;
+    display:none;
+  }
+  .cal-pop.show{ display:block; }
+  .cal-head{ display:flex; align-items:center; justify-content:space-between; font-size:12.5px; font-weight:600; margin-bottom:8px; }
+  .cal-head button{ border:none; background:none; color:var(--text-secondary); width:22px; height:22px; border-radius:6px; cursor:pointer; font-size:14px; line-height:1; }
+  .cal-head button:hover:not(:disabled){ background:var(--surface-card-hover); color:var(--text-primary); }
+  .cal-head button:disabled{ opacity:.3; cursor:not-allowed; }
+  .cal-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:2px; }
+  .cal-weekdays span{ text-align:center; font-size:10px; color:var(--text-muted); font-weight:600; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .cal-cell{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; border:none; background:none; color:var(--text-primary); font-size:11.5px; border-radius:6px; cursor:pointer; }
+  .cal-cell:hover:not(:disabled):not(.cal-blank){ background:var(--surface-card-hover); }
+  .cal-blank{ cursor:default; }
+  .cal-cell:disabled{ color:var(--text-muted); opacity:.32; cursor:not-allowed; }
+  .cal-cell.sel{ background:var(--accent); color:#fff; font-weight:700; }
+  .p-chip{
+    display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border-strong);
+    background:var(--surface-card); color:var(--text-primary); font-size:12px; font-weight:600;
+    padding:5px 9px; border-radius:999px; cursor:pointer;
+  }
+  .p-chip:hover{ border-color:var(--accent); }
+  .p-chip .dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .p-chip .x{ color:var(--text-muted); font-size:13px; line-height:1; margin-left:1px; }
+  .p-chip.off{ color:var(--text-muted); text-decoration:line-through; opacity:.6; }
+  .refresh-btn{
+    display:inline-flex; align-items:center; gap:6px; border:1px solid var(--accent); background:none;
+    color:var(--accent); font-size:12px; font-weight:700; padding:5px 11px; border-radius:999px; cursor:pointer; flex-shrink:0;
+  }
+  .refresh-btn:hover{ background:var(--accent-wash); }
+  .refresh-btn svg{ width:13px; height:13px; }
+
+  .content{ padding:22px 28px 64px; position:relative; }
+
+  /* ---------- Strong vertical separation between every chart card ---------- */
+  /* Each Top-25 graph and every other graph gets its own clear vertical space. */
+  .content-inner > .chart-grid + .chart-grid{ margin-top:64px !important; }
+  .chart-grid > .card + .card{ margin-top:0 !important; }
+  .chart-grid{ row-gap:64px !important; }
+  .chart-grid.single{ row-gap:64px !important; }
+
+  /* ---------- KPI tiles ---------- */
+  .kpi-row{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:12px; margin-bottom:22px;
+  }
+  .kpi{
+    background:var(--surface-card); border:1px solid var(--border);
+    border-radius:12px; padding:16px 18px; box-shadow:var(--shadow);
+    min-width:0; /* let a long nowrap sub-line (e.g. a joined plant list) ellipsize instead of forcing this grid track wider than its fair share */
+  }
+  .kpi .label{ font-size:11.5px; color:var(--text-muted); font-weight:500; }
+  .kpi .value{ font-size:24px; font-weight:600; margin-top:7px; letter-spacing:-.3px; }
+  .kpi .value .unit{ font-size:13px; font-weight:500; color:var(--text-secondary); margin-left:3px; }
+  .kpi .sub{ font-size:11.5px; color:var(--text-muted); margin-top:5px; font-family:var(--font-mono); }
+  .kpi .sub.good{ color:var(--good); }
+  .kpi .sub.warn{ color:var(--warning); }
+
+  /* ---------- Chart grid ---------- */
+  .chart-grid{ display:grid; grid-template-columns:1fr; column-gap:0; row-gap:64px !important; align-items:start; }
+  .chart-grid.single{ grid-template-columns:1fr; row-gap:64px !important; }
+  /* Keep every graph card visually separated, including Top-25 charts. */
+  .chart-grid > .card{ margin-bottom:0; min-height:0; position:relative; }
+  .chart-grid + .chart-grid{ margin-top:64px; }
+  .card{
+    background:var(--surface-card); border:1px solid var(--border);
+    border-radius:14px; padding:18px 18px 22px; box-shadow:var(--shadow);
+    display:flex; flex-direction:column; min-width:0;
+  }
+  .card-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:4px; }
+  .card-head h3{ font-size:14px; font-weight:600; letter-spacing:-.1px; }
+  .card-head .hint{ font-size:11px; color:var(--text-muted); margin-top:3px; }
+  .card-head .axis-caption{ font-size:10.5px; color:#dc2626; font-weight:600; margin-top:5px; font-family:var(--font-mono); letter-spacing:.1px; }
+  .card-head .axis-caption b{ color:#dc2626; font-weight:700; }
+  .table-toggle{
+    flex-shrink:0; font-family:var(--font-mono); font-size:10px; letter-spacing:.3px;
+    color:var(--text-muted); background:none; border:1px solid var(--border-strong);
+    border-radius:6px; padding:4px 8px; cursor:pointer; text-transform:uppercase;
+  }
+  .table-toggle:hover{ color:var(--text-primary); border-color:var(--accent); }
+  .canvas-wrap{ position:relative; width:100%; margin-top:8px; }
+  .canvas-wrap canvas{ width:100% !important; }
+  .chart-legend{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .chart-legend:empty{ display:none; margin-top:0; }
+    .chart-body{
+    display:flex;
+    align-items:stretch;
+    gap:10px;
+    min-width:0;
+  }
+  .chart-body .canvas-wrap{
+    flex:1 1 auto;
+    min-width:0;
+  }
+  .chart-body .chart-legend{
+    flex:0 0 142px;
+    width:142px;
+    max-height:var(--legend-h, 280px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+    gap:6px;
+    padding:2px 2px 2px 0;
+  }
+  /* Large red graph-level cancel/show controls */
+  .chart-body .chart-legend .p-chip{
+    min-width:38px;
+    min-height:38px;
+    height:38px;
+    padding:6px 10px;
+    border:2px solid #dc2626;
+    border-radius:9px;
+    background:#fff;
+    color:#991b1b;
+    font-size:12px;
+    font-weight:700;
+    box-shadow:0 2px 6px rgba(220,38,38,.20);
+  }
+  .chart-body .chart-legend .p-chip:hover{
+    border-color:#b91c1c;
+    background:#fef2f2;
+    color:#b91c1c;
+    transform:scale(1.03);
+  }
+  .chart-body .chart-legend .p-chip .x{
+    color:#dc2626 !important;
+    font-size:24px !important;
+    font-weight:800;
+    line-height:1;
+    margin-left:5px;
+  }
+  .chart-body .chart-legend .p-chip.off{
+    border-color:#dc2626;
+    background:#fee2e2;
+    color:#991b1b;
+    opacity:.8;
+    text-decoration:none;
+  }
+  .chart-body .chart-legend .p-chip.off .x{
+    color:#16a34a !important;
+    font-size:22px !important;
+  }
+  .chart-body .chart-legend .p-chip{
+    width:100%;
+    min-height:32px;
+    justify-content:flex-start;
+    text-align:left;
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+  .chart-body .chart-legend:empty{ display:none; }
+  .exceptional-note{font-size:11px;color:var(--text-muted);margin-top:6px;}
+
+.chart-legend .p-chip{ font-size:11px; padding:5px 9px; min-height:30px; }
+  .chart-legend .p-chip .dot{
+    width:9px; height:9px; border-radius:50%; flex-shrink:0;
+    box-shadow:0 0 0 1px rgba(16,20,27,0.08);
+  }
+  .chart-legend .p-chip .x{
+     margin-left:auto;
+     line-height:1;
+     font-size:26px !important;
+     font-weight:900;
+     width:28px;
+     min-width:28px;
+     height:28px;
+     display:inline-flex;
+     align-items:center;
+     justify-content:center;
+  }
+  .chart-legend .p-chip.off{ text-decoration:line-through; opacity:.48; }
+  .chart-legend .p-chip:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .chart-total{font-family:var(--font-mono);font-size:10.5px;color:var(--text-muted);margin-top:3px}.chart-total b{color:var(--text-primary)}
+  /* Unified graph controls: large red X to hide, green ↻ to restore.
+     This applies to every chart legend generated by the dashboard. */
+  .chart-legend .p-chip .x{
+    margin-left:auto !important;
+    width:28px !important;
+    min-width:28px !important;
+    height:28px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    font-size:26px !important;
+    font-weight:900 !important;
+    line-height:1 !important;
+  }
+  .chart-legend .p-chip:not(.off) .x{
+    color:#dc2626 !important;
+  }
+  .chart-legend .p-chip.off .x{
+    color:#16a34a !important;
+  }
+  .chart-legend .p-chip .dot{
+    display:none !important;
+  }
+  /* Pie/donut legends need the color swatch back — every entry there has a
+     distinct slice color, and without the dot there is no way to tell which
+     label maps to which color. (Bar-chart "hide series" legends keep the
+     dot hidden above: every entry there is the same single chart color, so
+     a swatch would add nothing.) attachDoughnutLegend() tags its legend
+     container with .legend-colored so only pie/donut legends get this. */
+  .chart-legend.legend-colored .p-chip .dot{
+    display:inline-block !important;
+    width:10px !important;
+    height:10px !important;
+    border-radius:50% !important;
+    flex-shrink:0 !important;
+    margin-right:1px;
+    box-shadow:0 0 0 1px rgba(16,20,27,0.15);
+  }
+
+
+  .data-table{ display:none; margin-top:12px; border-top:1px solid var(--border); padding-top:10px; overflow-x:auto; }
+  .data-table.show{ display:block; }
+  .data-table table{ width:100%; border-collapse:collapse; font-size:12px; }
+  .data-table th{ text-align:right; font-weight:500; color:var(--text-muted); padding:5px 8px; font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.3px; border-bottom:1px solid var(--border); }
+  .data-table td{ text-align:right; padding:5px 8px; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums; }
+  .data-table th:first-child, .data-table td:first-child{ text-align:left; }
+  .data-table tr:last-child td{ border-bottom:none; }
+  .bt-ost-table{ max-height:520px; overflow:auto; }
+  .bt-ost-table table{ min-width:760px; }
+  .bt-ost-table thead th{ position:sticky; top:0; z-index:2; background:var(--surface-card); }
+  .bt-ost-table td:first-child{ font-weight:600; }
+
+  /* ---------- Loading states ---------- */
+  #boot-loader{
+    position:fixed; inset:0; z-index:100; background:var(--surface-page);
+    display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px;
+  }
+  .spinner{
+    width:34px; height:34px; border-radius:50%;
+    border:3px solid var(--border-strong); border-top-color:var(--accent);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  #boot-loader .boot-label{ font-family:var(--font-mono); font-size:11.5px; color:var(--text-muted); letter-spacing:.4px; }
+  #boot-loader .boot-label b{ color:var(--text-primary); }
+
+  .panel-loading{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:12px; padding:80px 0; color:var(--text-muted);
+  }
+  .panel-loading .spinner{ width:26px; height:26px; border-width:2.5px; }
+  .panel-loading span{ font-family:var(--font-mono); font-size:11.5px; letter-spacing:.3px; }
+
+  .skeleton-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-bottom:22px; }
+  .skel{ background:linear-gradient(100deg, var(--surface-card) 40%, var(--surface-card-hover) 50%, var(--surface-card) 60%); background-size:200% 100%; animation:shimmer 1.3s ease-in-out infinite; border-radius:12px; border:1px solid var(--border); }
+  @keyframes shimmer{ 0%{ background-position:200% 0; } 100%{ background-position:-200% 0; } }
+  .skel.kpi-skel{ height:78px; }
+  .skel.chart-skel{ height:300px; }
+  .skel-chart-grid{ display:grid; grid-template-columns:1fr; row-gap:32px; }
+
+  .content-inner{ opacity:0; transition:opacity .22s ease; }
+  .content-inner.ready{ opacity:1; }
+
+  /* ---------- App shell visibility ---------- */
+  .app{ display:none; }
+  .app.ready{ display:flex; }
+
+  /* ---------- Upload screen (Home Page) — Balaji Transportation ---------- */
+  #uploadScreen{
+    position:fixed; inset:0; z-index:90;
+    background:
+      radial-gradient(1200px 600px at 110% -10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, color-mix(in srgb, #f59e0b 8%, transparent), transparent 60%),
+      var(--surface-page);
+    display:flex; align-items:center; justify-content:center;
+    padding:32px 24px; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  .home-shell{
+    width:100%; max-width:1120px; margin:auto;
+    display:grid; grid-template-columns:1.05fr 1fr; gap:0;
+    background:var(--surface-card); border:1px solid var(--border);
+    border-radius:24px; overflow:hidden;
+    box-shadow:0 2px 4px rgba(16,20,27,0.04), 0 30px 60px -30px rgba(16,40,80,0.35);
+    animation:homeRise .7s cubic-bezier(.2,.7,.2,1) both;
+  }
+
+  /* --- Brand panel --- */
+  .home-brand{
+    position:relative; overflow:hidden; color:#eef3fa;
+    padding:44px 44px 36px;
+    background:
+      linear-gradient(160deg, rgba(10,30,60,0.0), rgba(4,12,26,0.55)),
+      linear-gradient(145deg, #0d2b52 0%, #0a1f3d 55%, #071528 100%);
+    display:flex; flex-direction:column;
+  }
+  .home-brand::before{ /* subtle road grid */
+    content:""; position:absolute; inset:0; pointer-events:none; opacity:.35;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size:36px 36px;
+    mask-image:linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+    -webkit-mask-image:linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+  }
+  .home-brand::after{ /* glow */
+    content:""; position:absolute; width:420px; height:420px; right:-160px; top:-160px; border-radius:50%;
+    background:radial-gradient(circle, rgba(91,157,240,0.35), transparent 65%); pointer-events:none;
+  }
+  .home-brand > *{ position:relative; z-index:1; }
+  .brand-row{ display:flex; align-items:center; gap:12px; animation:homeFade .6s .1s both; }
+  .brand-logo{
+    width:42px; height:42px; border-radius:11px; flex-shrink:0;
+    background:linear-gradient(155deg,#f6b23c,#e08a00);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 16px -6px rgba(240,160,30,0.7), inset 0 0 0 1px rgba(255,255,255,0.25);
+  }
+  .brand-logo svg{ width:22px; height:22px; }
+  .brand-name{ font-size:17px; font-weight:700; letter-spacing:.2px; line-height:1.1; }
+  .brand-tag{ font-family:var(--font-mono); font-size:10px; letter-spacing:1.4px; text-transform:uppercase; color:#9fb3cf; margin-top:3px; }
+
+  .brand-eyebrow{
+    display:inline-flex; align-items:center; gap:8px; margin-top:40px; align-self:flex-start;
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:1.2px; text-transform:uppercase;
+    color:#cfe0f7; background:rgba(91,157,240,0.14); border:1px solid rgba(91,157,240,0.30);
+    padding:6px 11px; border-radius:999px; animation:homeFade .6s .18s both;
+  }
+  .brand-eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:#3ddc84; box-shadow:0 0 0 0 rgba(61,220,132,.6); animation:homePulse 2.2s infinite; }
+  .brand-headline{
+    font-size:clamp(26px, 3.1vw, 36px); font-weight:700; line-height:1.15; letter-spacing:-.6px;
+    margin-top:16px; color:#fff; animation:homeFade .6s .24s both;
+  }
+  .brand-headline span{ background:linear-gradient(90deg,#7db7ff,#f6b23c); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .brand-copy{ font-size:14px; line-height:1.65; color:#b4c3d8; margin-top:14px; max-width:440px; animation:homeFade .6s .3s both; }
+
+  .brand-section-title{
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:1.4px; text-transform:uppercase;
+    color:#8ea4c2; margin:30px 0 12px; display:flex; align-items:center; gap:10px;
+  }
+  .brand-section-title::after{ content:""; flex:1; height:1px; background:rgba(255,255,255,0.10); }
+  .feature-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .feature{
+    display:flex; gap:11px; align-items:flex-start; padding:12px;
+    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px;
+    transition:transform .25s ease, background .25s ease, border-color .25s ease;
+    animation:homeFade .55s both;
+  }
+  .feature:nth-child(1){ animation-delay:.36s; } .feature:nth-child(2){ animation-delay:.42s; }
+  .feature:nth-child(3){ animation-delay:.48s; } .feature:nth-child(4){ animation-delay:.54s; }
+  .feature:hover{ transform:translateY(-2px); background:rgba(255,255,255,0.07); border-color:rgba(91,157,240,0.35); }
+  .feature-ic{
+    width:30px; height:30px; border-radius:8px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(91,157,240,0.16); color:#8fc1ff;
+  }
+  .feature-ic svg{ width:16px; height:16px; }
+  .feature h4{ font-size:12.5px; font-weight:600; color:#fff; line-height:1.3; }
+  .feature p{ font-size:11.5px; color:#9fb1c9; margin:3px 0 0; line-height:1.45; }
+
+  .brand-road{ margin-top:auto; padding-top:28px; animation:homeFade .6s .6s both; }
+  .road-track{ position:relative; height:34px; border-bottom:2px dashed rgba(255,255,255,0.18); overflow:hidden; }
+  .road-truck{
+    position:absolute; bottom:2px; left:-60px; width:46px; height:28px; color:#f6b23c;
+    animation:homeDrive 9s linear infinite;
+  }
+  .brand-foot{ display:flex; justify-content:space-between; gap:12px; margin-top:12px; font-family:var(--font-mono); font-size:10px; letter-spacing:.6px; color:#7f93b0; text-transform:uppercase; }
+
+  /* --- Upload panel --- */
+  .home-upload{ padding:44px 44px 36px; display:flex; flex-direction:column; justify-content:center; }
+  .upload-card{
+    width:100%; max-width:440px; margin:0 auto;
+    background:transparent; border:none; padding:0; box-shadow:none;
+    text-align:center;
+  }
+  .upload-section-label{
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:1.4px; text-transform:uppercase;
+    color:var(--accent); font-weight:600; margin-bottom:14px; animation:homeFade .5s .2s both;
+  }
+  .upload-mark{
+    width:58px; height:58px; border-radius:16px; margin:0 auto 18px;
+    background:linear-gradient(155deg,#3987e5,#1c5cab);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15), 0 12px 24px -10px rgba(28,92,171,0.7);
+    animation:homeFloat 4s ease-in-out infinite, homeFade .5s .25s both;
+  }
+  .upload-mark svg{ width:28px; height:28px; }
+  .upload-card h2{ font-size:24px; font-weight:700; letter-spacing:-.4px; line-height:1.2; animation:homeFade .5s .3s both; }
+  .upload-card .lede{ font-size:14px; color:var(--text-muted); margin:10px auto 0; line-height:1.6; max-width:380px; animation:homeFade .5s .35s both; }
+  .dropzone{
+    position:relative; margin-top:26px; border:1.5px dashed var(--border-strong); border-radius:16px;
+    padding:32px 18px; cursor:pointer; background:color-mix(in srgb, var(--accent) 3%, transparent);
+    transition:border-color .2s ease, background .2s ease, transform .2s ease, box-shadow .2s ease;
+    animation:homeFade .5s .4s both; outline:none;
+  }
+  .dropzone:hover, .dropzone.drag, .dropzone:focus-visible{
+    border-color:var(--accent); background:var(--accent-wash);
+    box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
+  }
+  .dropzone.drag{ transform:scale(1.015); }
+  .dropzone svg{
+    width:26px; height:26px; color:var(--accent); margin-bottom:10px;
+    padding:10px; box-sizing:content-box; border-radius:50%;
+    background:var(--accent-wash); transition:transform .25s ease;
+  }
+  .dropzone:hover svg, .dropzone.drag svg{ transform:translateY(-3px); }
+  .dropzone .dz-title{ font-size:14.5px; font-weight:600; color:var(--text-primary); }
+  .dropzone .dz-sub{ font-size:12.5px; color:var(--text-muted); margin-top:5px; }
+  .dz-formats{ display:flex; gap:6px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
+  .dz-formats span{
+    font-family:var(--font-mono); font-size:10.5px; font-weight:600; letter-spacing:.4px;
+    color:var(--text-secondary); background:var(--surface-card); border:1px solid var(--border);
+    padding:3px 9px; border-radius:6px;
+  }
+  .upload-browse-btn{
+    margin-top:20px; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, #fff), var(--accent));
+    color:#fff; border:none; border-radius:11px;
+    padding:12px 26px; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer;
+    box-shadow:0 10px 20px -10px color-mix(in srgb, var(--accent) 80%, transparent), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    animation:homeFade .5s .45s both;
+  }
+  .upload-browse-btn:hover{ transform:translateY(-1px); filter:brightness(1.05); box-shadow:0 14px 26px -12px color-mix(in srgb, var(--accent) 90%, transparent); }
+  .upload-browse-btn:active{ transform:translateY(0); }
+  .upload-browse-btn:focus-visible{ outline:none; box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); }
+  .upload-hint{
+    margin-top:18px; font-family:var(--font-mono); font-size:11px; color:var(--text-muted); letter-spacing:.2px; line-height:1.5;
+    display:flex; align-items:center; justify-content:center; gap:7px; animation:homeFade .5s .5s both;
+  }
+  .upload-hint::before{
+    content:""; width:14px; height:14px; flex-shrink:0; background-color:var(--good);
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3Cpath d='M9 12l2 2 4-4'/%3E%3C/svg%3E") center/contain no-repeat;
+            mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3Cpath d='M9 12l2 2 4-4'/%3E%3C/svg%3E") center/contain no-repeat;
+  }
+  .upload-error{
+    display:none; margin-top:16px; text-align:left; background:color-mix(in srgb, var(--warning) 12%, transparent);
+    border:1px solid color-mix(in srgb, var(--warning) 35%, transparent); border-radius:12px;
+    padding:12px 14px; font-size:12.5px; color:var(--text-primary); line-height:1.5;
+  }
+  .upload-error.show{ display:block; animation:homeShake .4s ease; }
+  .upload-error b{ color:var(--warning); }
+
+  .steps-title{
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:1.4px; text-transform:uppercase;
+    color:var(--text-muted); margin:30px 0 12px; display:flex; align-items:center; gap:10px; text-align:left;
+  }
+  .steps-title::before, .steps-title::after{ content:""; flex:1; height:1px; background:var(--border); }
+  .steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; list-style:none; margin:0; padding:0; }
+  .step{
+    text-align:left; padding:12px; border-radius:12px; border:1px solid var(--border);
+    background:var(--surface-card-hover); animation:homeFade .5s both;
+    transition:border-color .2s ease, transform .2s ease;
+  }
+  .step:nth-child(1){ animation-delay:.55s; } .step:nth-child(2){ animation-delay:.62s; } .step:nth-child(3){ animation-delay:.69s; }
+  .step:hover{ border-color:color-mix(in srgb, var(--accent) 40%, transparent); transform:translateY(-2px); }
+  .step-num{
+    width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:11px; font-weight:600; color:var(--accent); background:var(--accent-wash);
+  }
+  .step h5{ margin:9px 0 0; font-size:12.5px; font-weight:600; color:var(--text-primary); }
+  .step p{ margin:3px 0 0; font-size:11.5px; color:var(--text-muted); line-height:1.4; }
+
+  /* --- Animations --- */
+  @keyframes homeRise{ from{ opacity:0; transform:translateY(18px) scale(.99); } to{ opacity:1; transform:none; } }
+  @keyframes homeFade{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:none; } }
+  @keyframes homeFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
+  @keyframes homePulse{ 0%{ box-shadow:0 0 0 0 rgba(61,220,132,.55); } 70%{ box-shadow:0 0 0 7px rgba(61,220,132,0); } 100%{ box-shadow:0 0 0 0 rgba(61,220,132,0); } }
+  @keyframes homeDrive{ from{ left:-60px; } to{ left:calc(100% + 10px); } }
+  @keyframes homeShake{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-4px); } 75%{ transform:translateX(4px); } }
+  @media (prefers-reduced-motion: reduce){
+    #uploadScreen *, #uploadScreen *::before, #uploadScreen *::after{ animation:none !important; transition:none !important; }
+  }
+
+  @media (min-width: 961px) and (max-height: 860px){
+    #uploadScreen{ padding:20px 24px; }
+    .home-brand, .home-upload{ padding:32px 40px 26px; }
+    .brand-eyebrow{ margin-top:26px; }
+    .brand-section-title{ margin:22px 0 10px; }
+    .upload-section-label{ margin-bottom:10px; }
+    .upload-mark{ width:50px; height:50px; margin-bottom:14px; }
+    .dropzone{ margin-top:20px; padding:22px 16px; }
+    .upload-browse-btn{ margin-top:16px; }
+    .upload-hint{ margin-top:14px; }
+    .steps-title{ margin:20px 0 10px; }
+  }
+  /* --- Home responsive --- */
+  @media (max-width: 960px){
+    .home-shell{ grid-template-columns:1fr; max-width:640px; }
+    .home-brand{ padding:32px 32px 26px; }
+    .brand-eyebrow{ margin-top:26px; }
+    .brand-road{ padding-top:22px; }
+    .home-upload{ padding:34px 32px 32px; order:-1; }
+    .home-brand{ order:0; }
+  }
+  @media (max-width: 560px){
+    #uploadScreen{ padding:16px; align-items:flex-start; }
+    .home-shell{ border-radius:18px; }
+    .home-upload{ padding:28px 20px 24px; }
+    .home-brand{ padding:26px 20px 22px; }
+    .upload-card h2{ font-size:21px; }
+    .upload-card .lede{ font-size:13.5px; }
+    .dropzone{ padding:24px 14px; }
+    .upload-browse-btn{ width:100%; }
+    .steps{ grid-template-columns:1fr; }
+    .step{ display:flex; gap:12px; align-items:flex-start; }
+    .step h5{ margin-top:1px; }
+    .feature-grid{ grid-template-columns:1fr; }
+    .brand-headline{ font-size:24px; }
+    .brand-foot{ flex-direction:column; gap:4px; }
+  }
+
+  .rail-foot-file{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+  .rail-upload-btn{
+    font-family:var(--font-mono); font-size:10px; letter-spacing:.3px; text-transform:uppercase;
+    color:var(--rail-text-dim); background:var(--rail-bg-raised); border:1px solid var(--rail-border);
+    border-radius:6px; padding:5px 9px; cursor:pointer; white-space:nowrap; flex-shrink:0;
+  }
+  .rail-upload-btn:hover{ color:#fff; border-color:var(--rail-accent); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px){
+    .rail{ transform:translateX(-100%); box-shadow:0 0 40px rgba(0,0,0,0.35); }
+    .rail.open{ transform:translateX(0); }
+    .main{ margin-left:0; }
+    .hamburger{ display:inline-flex; }
+    .topbar{ padding:14px 16px; }
+    .content{ padding:16px 16px 48px; }
+    .chart-grid{ grid-template-columns:1fr; }
+    .topbar-meta{ display:none; }
+    .filter-bar{ padding:10px 16px; gap:12px; }
+  }
+  @media (max-width: 480px){
+    .kpi-row{ grid-template-columns:repeat(2,1fr); }
+    .topbar-titles h1{ font-size:16.5px; }
+    .filter-bar{ padding:10px 12px; }
+    .date-range{ width:100%; }
+    .date-field{ flex:1; min-width:0; }
+    .date-box{ width:100%; min-width:0; }
+  }
+  @media (max-width: 720px){
+    .chart-body{ flex-direction:column; }
+    .chart-body .chart-legend{
+      width:100%;
+      flex:0 0 auto;
+      max-height:96px;
+      flex-direction:row;
+      flex-wrap:wrap;
+      overflow-y:auto;
+    }
+    .chart-body .chart-legend .p-chip{ width:auto; flex:0 1 auto; }
+  }
+</style>
+
+<div id="boot-loader" style="display:none;">
+  <div class="spinner"></div>
+  <div class="boot-label" id="bootLabel">Working&hellip;</div>
+</div>
+
+<div id="uploadScreen" style="display:none;">
+  <div class="home-shell">
+
+    <!-- Brand / intro panel -->
+    <aside class="home-brand" aria-label="Balaji Transportation">
+      <div class="brand-row">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="13" height="8"></rect><path d="M15 12h3.5L21 15v2h-6"></path><circle cx="6.5" cy="18" r="1.8"></circle><circle cx="17.5" cy="18" r="1.8"></circle></svg>
+        </div>
+        <div>
+          <div class="brand-name">Balaji Transportation</div>
+          <div class="brand-tag">Logistics &middot; Dispatch Analytics</div>
+        </div>
+      </div>
+
+      <div class="brand-eyebrow"><span class="dot"></span>Plant-wise Loading Reports</div>
+      <h1 class="brand-headline">Turn your loading data into <span>clear dispatch insights</span>.</h1>
+      <p class="brand-copy">A fast, private dashboard for reviewing loading and dispatch performance across plants &mdash; built for the Balaji Transportation operations team.</p>
+
+      <div class="brand-section-title">What you get</div>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V10l5-3v14"></path><path d="M10 21V4l9 4v13"></path></svg></div>
+          <div><h4>Plant-wise Reports</h4><p>Dispatch broken down by plant.</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M7 15l4-4 3 3 5-6"></path></svg></div>
+          <div><h4>Interactive Charts</h4><p>KPIs and trends at a glance.</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></div>
+          <div><h4>Date Filtering</h4><p>Focus on any date range.</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></div>
+          <div><h4>Private &amp; Secure</h4><p>Processed in your browser.</p></div>
+        </div>
+      </div>
+
+      <div class="brand-road" aria-hidden="true">
+        <div class="road-track">
+          <svg class="road-truck" viewBox="0 0 48 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="28" height="15" rx="1.5" fill="rgba(246,178,60,0.18)"></rect><path d="M30 10h8l6 6v4H30z" fill="rgba(246,178,60,0.18)"></path><circle cx="11" cy="22" r="3.2" fill="#0a1f3d"></circle><circle cx="37" cy="22" r="3.2" fill="#0a1f3d"></circle></svg>
+        </div>
+        <div class="brand-foot"><span>&copy; Balaji Transportation</span><span>Reliable &middot; On-time &middot; Safe</span></div>
+      </div>
+    </aside>
+
+    <!-- Upload panel (existing content preserved) -->
+    <section class="home-upload" aria-labelledby="uploadTitle">
+      <div class="upload-card">
+        <div class="upload-section-label">Get Started</div>
+        <div class="upload-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="13" height="8"></rect><path d="M15 12h3.5L21 15v2h-6"></path><circle cx="6.5" cy="18" r="1.8"></circle><circle cx="17.5" cy="18" r="1.8"></circle></svg>
+        </div>
+        <h2 id="uploadTitle">Loading Reports Dashboard</h2>
+        <p class="lede">Upload a Loading Report workbook (.xlsx / .xls / .csv) to generate the dispatch analytics reports.</p>
+        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload workbook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"></path><path d="M7 9l5-5 5 5"></path><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg>
+          <div class="dz-title">Drop your workbook here</div>
+          <div class="dz-sub">or click to browse this device</div>
+          <div class="dz-formats" aria-hidden="true"><span>.XLSX</span><span>.XLS</span><span>.CSV</span></div>
+        </div>
+        <button class="upload-browse-btn" id="browseBtn" type="button">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+          Choose File
+        </button>
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none;">
+        <div class="upload-hint">Nothing is uploaded to a server &mdash; the file is read in your browser only.</div>
+        <div class="upload-error" id="uploadError"></div>
+
+        <div class="steps-title">How it works</div>
+        <ol class="steps">
+          <li class="step"><div class="step-num">1</div><div><h5>Upload</h5><p>Select your loading report workbook.</p></div></li>
+          <li class="step"><div class="step-num">2</div><div><h5>Process</h5><p>Data is read and summarised instantly.</p></div></li>
+          <li class="step"><div class="step-num">3</div><div><h5>Analyse</h5><p>Explore plant-wise dispatch reports.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="rail-scrim" id="railScrim"></div>
+
+<div class="app" id="appShell">
+  <aside class="rail" id="rail">
+    <div class="rail-brand">
+      <div class="rail-brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="13" height="8"></rect><path d="M15 12h3.5L21 15v2h-6"></path><circle cx="6.5" cy="18" r="1.8"></circle><circle cx="17.5" cy="18" r="1.8"></circle></svg>
+      </div>
+      <div class="rail-brand-text">
+        <div class="t">Loading Reports Dashboard</div>
+        <div class="s" id="railFy">Dispatch Analytics</div>
+      </div>
+    </div>
+
+    <div class="rail-search">
+      <div class="rail-search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input id="navSearch" type="text" placeholder="Search reports&hellip;" autocomplete="off" />
+      </div>
+    </div>
+
+    <nav class="rail-nav" id="railNav">
+      <div class="rail-eyebrow">Analytical Reports</div>
+      <!-- nav items injected by JS -->
+    </nav>
+
+    <div class="rail-foot">
+      <div class="rail-foot-file">
+        <span>Source: <b id="railSourceFile">&mdash;</b></span>
+      </div>
+      <span id="railSourceMeta">&mdash;</span>
+      <button class="rail-upload-btn" id="changeFileBtn" type="button" style="display:block; margin-top:12px; width:100%;">Upload New File</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="topbar-titles">
+        <h1 id="reportTitle">&nbsp;</h1>
+        <p id="reportSubtitle">&nbsp;</p>
+      </div>
+      <div class="topbar-meta"><span class="live-dot"></span><span id="topbarMeta">&nbsp;</span></div>
+    </div>
+
+    <div class="filter-bar" id="filterBar"></div>
+
+    <div class="content">
+      <div class="content-inner" id="contentInner"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+"use strict";
+let DATA = null;          // the aggregate currently driving every report — reflects the active filters
+let FULL_DATA = null;     // unfiltered aggregate from the current upload — filter bar bounds/plant list read from here
+let BASE_RECORDS = null;  // enriched record list from the current upload, all destinations included (session-only; not cached)
+let dateRange = null;     // {start, end} ISO strings | null
+let availableDates = null; // Set of ISO date strings actually present in the workbook
+let COLUMN_HEADERS = {};  // canonical field name -> the LITERAL Excel column header text found in the workbook
+                           // currently loaded (captured in parseWorkbookFile). Every axis label on every
+                           // chart reads from this map, so labels always reflect the actual uploaded file's
+                           // real columns instead of a hardcoded guess.
+
+/* ---------------- number formatting (India grouping) ---------------- */
+const fmtNum = (n, d=0) => Number(n).toLocaleString('en-IN', {maximumFractionDigits:d, minimumFractionDigits:d});
+const fmtCompactT = (n) => fmtNum(n,0) + ' MT';
+const fmtPct = (n,d=1) => Number(n).toLocaleString('en-IN',{maximumFractionDigits:d, minimumFractionDigits:d}) + '%';
+// Auto-precision + optional compact (lakh/crore) formatter for chart axes & tooltips
+function autoDecimals(v){
+  const av = Math.abs(v);
+  if(av === 0) return 0;
+  if(av < 1) return 3;
+  if(av < 10) return 2;
+  return (v % 1 !== 0) ? 1 : 0;
+}
+function smartFormat(v, compact){
+  const av = Math.abs(v);
+  if(compact && av >= 1000){
+    return new Intl.NumberFormat('en-IN', {notation:'compact', maximumFractionDigits:1}).format(v);
+  }
+  return fmtNum(v, autoDecimals(v));
+}
+// Pick ONE decimal count for a whole axis (from its data range) so ticks like 0,5,10,15 don't mix "5.00" with "10"
+function axisDecimals(valuesArrays){
+  const flat = [].concat(...valuesArrays).map(v=>Math.abs(v)).filter(v=>isFinite(v));
+  const max = flat.length ? Math.max(...flat) : 0;
+  if(max === 0) return 0;
+  if(max < 1) return 3;
+  if(max < 10) return 2;
+  if(max < 100) return 1;
+  return 0;
+}
+function axisFormat(v, decimals, compact){
+  if(compact && Math.abs(v) >= 1000){
+    return new Intl.NumberFormat('en-IN', {notation:'compact', maximumFractionDigits:1}).format(v);
+  }
+  return fmtNum(v, decimals);
+}
+
+/* ---------------- theme-aware chart colors ---------------- */
+function getTheme(){
+  const attr = document.documentElement.getAttribute('data-theme');
+  if(attr === 'dark') return 'dark';
+  if(attr === 'light') return 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+const PALETTE = {
+  light:{
+    cat:['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4','#008300','#4a3aa7','#e34948'],
+    grid:'#e1e0d9', axis:'#c3c2b7', muted:'#6b7280', good:'#0ca30c', warning:'#c98500'
+  },
+  dark:{
+    cat:['#3987e5','#d95926','#199e70','#c98500','#d55181','#008300','#9085e9','#e66767'],
+    grid:'#262b33', axis:'#383835', muted:'#98a1ad', good:'#0ca30c', warning:'#fab219'
+  }
+};
+function colors(){ return PALETTE[getTheme()]; }
+// Fixed red used for EVERY axis / column-source label across every chart in the
+// dashboard, in both light and dark theme — deliberately not theme-dependent,
+// since these labels must always read as red per the reporting requirement.
+const AXIS_LABEL_RED = '#dc2626';
+function cardBg(){ return getComputedStyle(document.documentElement).getPropertyValue('--surface-card').trim() || '#fff'; }
+function textColor(role){ return getComputedStyle(document.documentElement).getPropertyValue(role).trim(); }
+
+// Fixed slot assignment so a given plant always carries the same hue (color-follows-entity)
+function plantColor(name, mode){ const order = (DATA && DATA.meta.plants) || []; const i = order.indexOf(name); return PALETTE[mode].cat[i>=0 ? i%8 : 0]; }
+
+/* ---------------- live KPI recompute from chart-level selection ----------------
+   Every KPI tile at the top of a report is derived from the SAME arrays that
+   feed that report's charts. Clicking a chart's own red-X legend hides a
+   category or series on the chart — and must recompute any KPI built from
+   that data too, from whatever is still visible, never leave the KPI row
+   frozen at its first-render snapshot. These helpers read back exactly
+   what is currently visible in a live Chart.js instance so report render()
+   functions can rebuild their KPI tiles from it.
+------------------------------------------------------------------------ */
+function visibleBarEntries(chart){
+  // Single-dataset (horizontal/vertical) bar chart: barChart()'s legend sets
+  // a hidden category's value to null in the dataset — filter those out.
+  const labels = chart.data.labels || [];
+  const data = (chart.data.datasets[0] || {}).data || [];
+  return labels.map((label,i)=>({label, value:Number(data[i]), visible:data[i]!=null}))
+               .filter(e=>e.visible);
+}
+function visibleDonutEntries(chart){
+  const labels = chart.data.labels || [];
+  const data = (chart.data.datasets[0] || {}).data || [];
+  return labels.map((label,i)=>({label, value:Number(data[i]), visible:chart.getDataVisibility(i)}))
+               .filter(e=>e.visible);
+}
+function visibleSeriesEntries(chart){
+  // Multi-series line / stacked / grouped bar: a whole series is hidden or shown at once.
+  return chart.data.datasets.map((ds,i)=>({
+    name: ds.label, values:(ds.data||[]).map(Number), visible: chart.isDatasetVisible(i)
+  })).filter(e=>e.visible);
+}
+
+if(window.Chart){
+  Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+  Chart.defaults.font.size = 11.5;
+}
+
+/* ---------------- generic chart builders ---------------- */
+let liveCharts = [];
+function destroyCharts(){ liveCharts.forEach(c=>c.destroy()); liveCharts = []; }
+
+function baseGrid(){
+  const c = colors();
+  return {
+    color: c.grid, drawTicks:false, tickLength:8
+  };
+}
+function baseTicks(){
+  const c = colors();
+  return { color: c.muted, font:{size:11} };
+}
+
+function barChart(ctx, {labels, values, color, horizontal=true, unit='', maxTicks, categoryLabel='', valueLabel=''}){
+  const c = colors();
+  const dec = axisDecimals([values]);
+  const total = values.reduce((a,v)=>a+(isFinite(v)?Number(v):0),0);
+  const ranks = values.map(v=>1+values.filter(x=>isFinite(x) && x>v).length);
+  const legendEl = ctx.canvas._legendEl;
+  // Horizontal bar charts (esp. Top-25 style lists) get squeezed and their
+  // bars overlap when every chart is forced into the same fixed-height
+  // canvas. Give each bar row enough breathing room, scaling the canvas
+  // height to the number of categories so this applies consistently to
+  // every horizontal bar chart across the dashboard, not just a couple.
+  if(horizontal){
+    const wrap = ctx.canvas.parentElement;
+    if(wrap && wrap.classList.contains('canvas-wrap')){
+      const perRow = 26; // px per bar row: 16px bar + comfortable gap
+      const basePad = 34; // room for the x-axis line/ticks
+      const needed = Math.max(280, labels.length*perRow + basePad);
+      wrap.style.height = needed+'px';
+    }
+  }
+  const chart = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ data:values.slice(), backgroundColor:color, borderRadius:4, borderSkipped:false, barThickness: horizontal? 16: 22, maxBarThickness:24 }] },
+    options:{
+      indexAxis: horizontal ? 'y' : 'x',
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'nearest', intersect:true },
+      plugins:{ legend:{display:false}, tooltip:{
+        backgroundColor: cardBg(), titleColor: textColor('--text-primary'), bodyColor: textColor('--text-secondary'),
+        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--border').trim(), borderWidth:1,
+        padding:12, cornerRadius:9, displayColors:false,
+        callbacks:{
+          title:(items)=> items.length ? '▸ '+items[0].label : '',
+          label:(item)=>{
+            if(item.raw==null) return '';
+            const v = Number(item.raw);
+            const visibleTotal = chart.data.datasets[0].data.reduce((a,x)=>a+(isFinite(x)?Number(x):0),0);
+             const share = visibleTotal ? (v/visibleTotal*100) : 0;
+            return '  Value: '+smartFormat(v,false)+(unit?' '+unit:'');
+          },
+          afterLabel:(item)=>{
+            if(item.raw==null) return '';
+            const v=Number(item.raw), share=total?(v/total*100):0;
+            return [
+              '  Share of visible chart total: '+fmtPct(share),
+              '  Rank: '+ranks[item.dataIndex]+' of '+labels.length,
+              '  Status: '+(v>0?'Active':'No activity')
+            ];
+          }
+        }
+      }},
+      scales:{
+        x:{ grid: horizontal? baseGrid() : {display:false}, ticks:{...baseTicks(), callback: horizontal? (v)=>axisFormat(v,dec,true) : (v,i)=>labels[i], maxRotation: horizontal?0:0, autoSkipPadding: horizontal?0:6}, border:{display:false},
+            title:{display:true, text:(horizontal?valueLabel:categoryLabel), color:AXIS_LABEL_RED, font:{size:11, weight:'600'}} },
+        y:{ grid: horizontal? {display:false} : baseGrid(), ticks:{...baseTicks(), callback: horizontal? (v,i)=>labels[i] : (v)=>axisFormat(v,dec,true)}, border:{display:false},
+            title:{display:true, text:(horizontal?categoryLabel:valueLabel), color:AXIS_LABEL_RED, font:{size:11, weight:'600'}} }
+      }
+    }
+  });
+
+  // Every graph on this dashboard is a Total/Sum breakdown (tonnage, vehicle
+  // counts, record counts) — no chart here plots a per-category average, so
+  // this footer always sums whatever is currently visible. Never reintroduce
+  // an average-calculation graph; a per-category average belongs in a KPI
+  // tile (a single weighted figure), never as its own bar chart.
+  const updateChartTotal = ()=>{
+    const visibleTotal = chart.data.datasets[0].data.reduce((a,v)=>a+(isFinite(v)?Number(v):0),0);
+    const totalEl = ctx.canvas._totalEl;
+    if(totalEl) totalEl.innerHTML = '<b>Total:</b> '+smartFormat(visibleTotal,false)+(unit?' '+unit:'');
+  };
+  chart._updateTotal = updateChartTotal;
+  updateChartTotal();
+  if(legendEl && labels.length>1){
+    sizeLegendForCount(legendEl, labels.length);
+    labels.forEach((lab,i)=>{
+      const chip = el('button','p-chip');
+      chip.type = 'button';
+      chip.title = 'Click to hide '+lab;
+      const dot = el('span','dot'); dot.style.background = color;
+      chip.appendChild(dot);
+      chip.appendChild(document.createTextNode(lab));
+      const x = el('span','x','&times;');
+      chip.appendChild(x);
+      chip.addEventListener('click', ()=>{
+        const ds = chart.data.datasets[0];
+        const willHide = ds.data[i]!=null;
+        ds.data[i] = willHide ? null : values[i];
+        chip.classList.toggle('off', willHide);
+        chip.title = willHide ? 'Click to show '+lab : 'Click to hide '+lab;
+        x.innerHTML = willHide ? '&#8635;' : '&times;';
+        chart.update();
+        // Call the MUTABLE chart._updateTotal (not the closure directly): a
+        // report page's onUpdate hook (wired in chartCard) replaces this
+        // property so the section's KPI tiles above the chart also recompute
+        // on every legend click — calling the closure here would silently
+        // bypass that and leave the KPI row stuck on its first-render values.
+        if(chart._updateTotal) chart._updateTotal(); else updateChartTotal();
+      });
+      legendEl.appendChild(chip);
+    });
+  }
+  return chart;
+}
+
+/* ---------------- clickable dataset/category legends ----------------
+   Every multi-series chart gets a clear clickable legend. Clicking one
+   item hides/shows only that line/series; all other lines stay visible.
+   Bar and doughnut charts also get the same interaction for categories.
+----------------------------------------------------------------------- */
+// The legend column used to be capped at a fixed 280px with overflow-y:auto,
+// which — for a Top-25-style list of chips (~44px tall each: 38px chip +
+// 6px gap) — only shows about the first 6 entries before scrolling. That
+// made it look like most labels had no cancel/hide control at all. Size
+// the column's max-height to the actual number of entries (with the old
+// 280px as a floor for short lists) so every label's toggle is visible
+// without having to discover a scrollbar.
+function sizeLegendForCount(legendEl, count){
+  if(!legendEl) return;
+  const perItem = 44; // 38px chip + 6px column gap
+  const needed = Math.max(280, count*perItem + 10);
+  // Set via a CSS custom property (not style.maxHeight directly) so the
+  // mobile layout's own fixed max-height:96px — a deliberately compact,
+  // row-wrapped legend for small screens — keeps winning at narrow widths
+  // instead of being overridden by an inline style.
+  legendEl.style.setProperty('--legend-h', needed+'px');
+}
+function attachDatasetLegend(chart, series, legendEl){
+  if(!legendEl || !series || series.length<=1) return;
+  legendEl.innerHTML = '';
+  sizeLegendForCount(legendEl, series.length);
+
+  series.forEach((s, i)=>{
+    const chip = el('button','p-chip');
+    chip.type = 'button';
+    chip.setAttribute('aria-pressed','true');
+    chip.title = 'Click to hide '+s.name+' (red X)';
+
+    const dot = el('span','dot');
+    dot.style.background = s.color;
+    chip.appendChild(dot);
+    chip.appendChild(document.createTextNode(s.name));
+
+    const state = el('span','x','×');
+    state.setAttribute('aria-hidden','true');
+    chip.appendChild(state);
+
+    chip.addEventListener('click', ()=>{
+      const visible = chart.isDatasetVisible(i);
+      chart.setDatasetVisibility(i, !visible);
+      const nowVisible = chart.isDatasetVisible(i);
+
+      chip.classList.toggle('off', !nowVisible);
+      chip.setAttribute('aria-pressed', String(nowVisible));
+      chip.title = nowVisible ? 'Click to hide '+s.name+' (red X)' : 'Click to restore '+s.name+' (green refresh)';
+      state.textContent = nowVisible ? '×' : '↻';
+      chart.update();
+      if(chart._updateTotal) chart._updateTotal();
+    });
+
+    legendEl.appendChild(chip);
+  });
+}
+
+function attachDoughnutLegend(chart, labels, colorsArr, legendEl){
+  if(!legendEl || !labels || labels.length<=1) return;
+  legendEl.innerHTML = '';
+  legendEl.classList.add('legend-colored'); // show the color swatch — each entry here is a distinct slice color
+  sizeLegendForCount(legendEl, labels.length);
+
+  labels.forEach((label, i)=>{
+    const chip = el('button','p-chip');
+    chip.type = 'button';
+    chip.setAttribute('aria-pressed','true');
+    chip.title = 'Click to hide '+label+' (red X)';
+
+    const dot = el('span','dot');
+    dot.style.background = colorsArr[i];
+    chip.appendChild(dot);
+    chip.appendChild(document.createTextNode(label));
+
+    const state = el('span','x','×');
+    state.setAttribute('aria-hidden','true');
+    chip.appendChild(state);
+
+    chip.addEventListener('click', ()=>{
+      const visible = chart.getDataVisibility(i);
+      chart.toggleDataVisibility(i);
+      const nowVisible = chart.getDataVisibility(i);
+
+      chip.classList.toggle('off', !nowVisible);
+      chip.setAttribute('aria-pressed', String(nowVisible));
+      chip.title = nowVisible ? 'Click to hide '+label+' (red X)' : 'Click to restore '+label+' (green refresh)';
+      state.textContent = nowVisible ? '×' : '↻';
+      chart.update();
+      if(chart._updateTotal) chart._updateTotal();
+    });
+
+    legendEl.appendChild(chip);
+  });
+}
+
+function groupedBarChart(ctx, {labels, series, unit='', categoryLabel='', valueLabel=''}){
+  const dec = axisDecimals(series.map(s=>s.values));
+  const totals = series.map(s=>s.values.reduce((a,v)=>a+(isFinite(v)?Number(v):0),0));
+  const chart = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets: series.map(s=>({ label:s.name, data:s.values, backgroundColor:s.color, borderRadius:4, borderSkipped:false, maxBarThickness:20 })) },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'nearest', intersect:true },
+      plugins:{ legend:{ display:false },
+        tooltip:{
+          backgroundColor: cardBg(), titleColor: textColor('--text-primary'), bodyColor: textColor('--text-secondary'),
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--border').trim(), borderWidth:1,
+          padding:12, cornerRadius:9, displayColors:false,
+          callbacks:{
+            title:(items)=> items.length ? '▸ '+items[0].label : '',
+            label:(item)=>{
+              const v=Number(item.raw), total=totals[item.datasetIndex]||0;
+              return '  '+item.dataset.label+': '+smartFormat(v,false)+(unit?' '+unit:'')+'  ('+fmtPct(total?v/total*100:0)+')';
+            },
+            afterLabel:(item)=>{
+              const vals=item.dataset.data.map(Number).filter(isFinite);
+              const v=Number(item.raw);
+              return '  Rank in '+item.dataset.label+': '+(1+vals.filter(x=>x>v).length)+' of '+vals.length;
+            },
+            footer:(items)=>{
+              if(!items.length) return '';
+              const idx=items[0].dataIndex;
+              const totalAtCategory=series.reduce((sum,s,si)=>sum+(chart.isDatasetVisible(si)?(Number(s.values[idx])||0):0),0);
+              return 'Total at '+labels[idx]+': '+smartFormat(totalAtCategory,false)+(unit?' '+unit:'');
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{...baseTicks()}, border:{display:false}, stacked:false,
+            title:{display:true, text:categoryLabel, color:AXIS_LABEL_RED, font:{size:11, weight:'600'}} },
+        y:{ grid: baseGrid(), ticks:{...baseTicks(), callback:(v)=>axisFormat(v,dec,true)}, border:{display:false},
+            title:{display:true, text:valueLabel, color:AXIS_LABEL_RED, font:{size:11, weight:'600'}} }
+      }
+    }
+  });
+  const updateChartTotal = ()=>{
+    let total=0;
+    chart.data.datasets.forEach((ds,i)=>{
+      if(chart.isDatasetVisible(i)) total += ds.data.reduce((a,v)=>a+(isFinite(v)?Number(v):0),0);
+    });
+    const totalEl=ctx.canvas._totalEl;
+    if(totalEl) totalEl.innerHTML='<b>Total:</b> '+smartFormat(total,false)+(unit?' '+unit:'');
+  };
+  chart._updateTotal=updateChartTotal;
+  updateChartTotal();
+  attachDatasetLegend(chart, series, ctx.canvas._legendEl);
+  return chart;
+}
+
+function stackedBarChart(ctx, {labels, series, unit='', categoryLabel='', valueLabel=''}){
+  const bg = cardBg();
+  const dec = axisDecimals(series.map(s=>s.values));
+  const chart = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets: series.map(s=>({ label:s.name, data:s.values, backgroundColor:s.color, borderRadius:4, borderSkipped:false, borderColor:bg, borderWidth:2, maxBarThickness:34 })) },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{ legend:{ display:false },
+        tooltip:{
+          backgroundColor: bg, titleColor: textColor('--text-primary'), bodyColor: textColor('--text-secondary'),
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--border').trim(), borderWidth:1,
+          padding:12, cornerRadius:9, displayColors:false,
+          callbacks:{
+            title:(items)=> items.length ? '▸ '+items[0].label+' — section details' : '',
+            label:(item)=>{
+              const v=Number(item.raw);
+              const totalAtCategory=series.reduce((sum,s,si)=>sum+(chart.isDatasetVisible(si)?(Number(s.values[item.dataIndex])||0):0),0);
+              return '  '+item.dataset.label+': '+smartFormat(v,false)+(unit?' '+unit:'')+'  ('+fmtPct(totalAtCategory?v/totalAtCategory*100:0)+')';
+            },
+            afterLabel:(item)=>{
+              const v=Number(item.raw);
+              const totalAtCategory=series.reduce((sum,s)=>sum+(Number(s.values[item.dataIndex])||0),0);
+              return '  Stack total: '+smartFormat(totalAtCategory,false)+(unit?' '+unit:'')+
+                     '\n  Section share: '+fmtPct(totalAtCategory?v/totalAtCategory*100:0);
+            },
+            footer:(items)=>{
+              if(!items.length) return '';
+              const idx=items[0].dataIndex;
+              const totalAtCategory=series.reduce((sum,s)=>sum+(Number(s.values[idx])||0),0);
+              return 'Hover a section for its exact contribution';
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ grid:{display:false}, stacked:true, ticks:{...baseTicks()}, border:{display:false},
+            title:{display:true, text:categoryLabel, color:AXIS_LABEL_RED, font:{size:11, weight:'600'}} },
+        y:{ grid: baseGrid(), stacked:true, ticks:{...baseTicks(), callback:(v)=>axisFormat(v,dec,true)}, border:{display:false},
+            title:{display:true, text:valueLabel, color:AXIS_LABEL_RED, font:{size:11, weight:'600'}} }
+      }
+    }
+  });
+  const updateChartTotal = ()=>{
+    let total=0;
+    chart.data.datasets.forEach((ds,i)=>{
+      if(chart.isDatasetVisible(i)) total += ds.data.reduce((a,v)=>a+(isFinite(v)?Number(v):0),0);
+    });
+    const totalEl=ctx.canvas._totalEl;
+    if(totalEl) totalEl.innerHTML='<b>Total:</b> '+smartFormat(total,false)+(unit?' '+unit:'');
+  };
+  chart._updateTotal=updateChartTotal;
+  updateChartTotal();
+  attachDatasetLegend(chart, series, ctx.canvas._legendEl);
+  return chart;
+}
+
+function lineChart(ctx, {labels, series, unit='', categoryLabel='', valueLabel=''}){
+  const bg = cardBg();
+  const dec = axisDecimals(series.map(s=>s.values));
+  const chart = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets: series.map(s=>({
+      label:s.name, data:s.values, borderColor:s.color, backgroundColor: s.fill? s.color+'1a' : 'transparent',
+      fill: !!s.fill, tension:0.35, borderWidth:2, pointRadius:3, pointHoverRadius:6,
+      pointBackgroundColor:s.color, pointBorderColor:bg, pointBorderWidth:2
+    })) },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{ legend:{ display:false },
+        tooltip:{
+          backgroundColor: bg, titleColor: textColor('--text-primary'), bodyColor: textColor('--text-secondary'),
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--border').trim(), borderWidth:1,
+          padding:12, cornerRadius:9, displayColors:false,
+          callbacks:{
+            title:(items)=> items.length ? '▸ '+items[0].label+' — line details' : '',
+            label:(item)=>{
+              const v=Number(item.parsed.y);
+              return '  '+item.dataset.label+': '+smartFormat(v,false)+(unit?' '+unit:'');
+            },
+            afterLabel:(item)=>{
+              const vals=item.dataset.data.map(Number).filter(isFinite);
+              const v=Number(item.parsed.y);
+              const prev=item.dataIndex>0 ? Number(item.dataset.data[item.dataIndex-1]) : NaN;
+              const change=isFinite(prev)&&prev!==0 ? (v-prev)/prev*100 : NaN;
+              const rank=1+vals.filter(x=>x>v).length;
+              return [
+                '  Rank in this line: '+rank+' of '+vals.length,
+                isFinite(change)?'  Change vs previous: '+(change>=0?'▲ ':'▼ ')+fmtPct(Math.abs(change)):'  Change vs previous: —'
+              ];
+            },
+            footer:(items)=>{
+              if(!items.length) return '';
+              const idx=items[0].dataIndex;
+              const totalAtPoint=series.reduce((sum,s,si)=>sum+(chart.isDatasetVisible(si)?(Number(s.values[idx])||0):0),0);
+              return series.length>1 ? 'Combined value at '+labels[idx]+': '+smartFormat(totalAtPoint,false)+(unit?' '+unit:'') : 'Exact hover point — '+labels[idx];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{...baseTicks()}, border:{display:false},
+            title:{display:true, text:categoryLabel, color:AXIS_LABEL_RED, font:{size:11, weight:'600'}} },
+        y:{ grid: baseGrid(), ticks:{...baseTicks(), callback:(v)=>axisFormat(v,dec,true)}, border:{display:false},
+            title:{display:true, text:valueLabel, color:AXIS_LABEL_RED, font:{size:11, weight:'600'}} }
+      }
+    }
+  });
+  const updateChartTotal = ()=>{
+    let total=0;
+    chart.data.datasets.forEach((ds,i)=>{
+      if(chart.isDatasetVisible(i)) total += ds.data.reduce((a,v)=>a+(isFinite(v)?Number(v):0),0);
+    });
+    const totalEl=ctx.canvas._totalEl;
+    if(totalEl) totalEl.innerHTML='<b>Total:</b> '+smartFormat(total,false)+(unit?' '+unit:'');
+  };
+  chart._updateTotal=updateChartTotal;
+  updateChartTotal();
+  attachDatasetLegend(chart, series, ctx.canvas._legendEl);
+  return chart;
+}
+
+function donutChart(ctx, {labels, values, colorsArr}){
+  const bg = cardBg();
+  const total = values.reduce((a,b)=>a+(Number(b)||0),0);
+  const chart = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data:values, backgroundColor:colorsArr, borderColor:bg, borderWidth:3, hoverOffset:8 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'64%',
+      interaction:{ mode:'nearest', intersect:true },
+      plugins:{ legend:{ display:false },
+        tooltip:{
+          backgroundColor: bg, titleColor: textColor('--text-primary'), bodyColor: textColor('--text-secondary'),
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--border').trim(), borderWidth:1,
+          padding:12, cornerRadius:9, displayColors:false,
+          callbacks:{
+            title:(items)=> items.length ? '▸ '+items[0].label+' — section details' : '',
+            label:(item)=>{
+              const v=Number(item.parsed);
+              return '  Value: '+smartFormat(v,false);
+            },
+            afterLabel:(item)=>{
+              const v=Number(item.parsed);
+              const pct=total?v/total*100:0;
+              const rank=1+values.filter(x=>Number(x)>v).length;
+              return [
+                '  Share of total: '+fmtPct(pct),
+                '  Rank: '+rank+' of '+labels.length+' sections',
+                '  Total chart value: '+smartFormat(total,false)
+              ];
+            },
+            footer:()=> 'Hover another section to compare'
+          }
+        }
+      }
+    }
+  });
+  const updateChartTotal=()=>{
+    let total=0;
+    chart.data.datasets[0].data.forEach((v,i)=>{if(chart.getDataVisibility(i)) total+=Number(v)||0;});
+    const totalEl=ctx.canvas._totalEl;
+    if(totalEl) totalEl.innerHTML='<b>Total:</b> '+smartFormat(total,false);
+  };
+  chart._updateTotal=updateChartTotal;
+  updateChartTotal();
+  attachDoughnutLegend(chart, labels, colorsArr, ctx.canvas._legendEl);
+  return chart;
+}
+
+/* ---------------- exceptional chart builders ---------------- */
+function radarChart(ctx, {labels, values, unit=''}){
+  const bg = cardBg();
+  const c = colors();
+  const max = Math.max(...values,0);
+  const chart = new Chart(ctx, {
+    type:'radar',
+    data:{labels, datasets:[{
+      label:'Performance Index',
+      data:values,
+      borderColor:c.cat[0],
+      backgroundColor:c.cat[0]+'22',
+      pointBackgroundColor:c.cat[0],
+      pointBorderColor:bg,
+      pointBorderWidth:2,
+      pointRadius:4,
+      pointHoverRadius:7,
+      borderWidth:2
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'nearest', intersect:true},
+      scales:{r:{
+        min:0, max:100,
+        grid:{color:c.grid}, angleLines:{color:c.grid},
+        ticks:{color:c.muted, backdropColor:'transparent', stepSize:20, font:{size:9}},
+        pointLabels:{color:c.muted, font:{size:10}}
+      }},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:bg, titleColor:textColor('--text-primary'), bodyColor:textColor('--text-secondary'),
+          borderColor:getComputedStyle(document.documentElement).getPropertyValue('--border').trim(),
+          borderWidth:1, padding:12, cornerRadius:9, displayColors:false,
+          callbacks:{
+            title:(items)=> items.length ? '▸ '+items[0].label+' — performance details' : '',
+            label:(item)=>'  Index score: '+Number(item.raw).toFixed(1)+(unit?' '+unit:'')+' / 100',
+            afterLabel:(item)=>{
+              const v=Number(item.raw);
+              return [
+                '  Relative to best plant: '+(max?v/max*100:0).toFixed(1)+'%',
+                '  Rank: '+(1+values.filter(x=>x>v).length)+' of '+values.length
+              ];
+            },
+            footer:()=> 'Composite = normalized tonnage + vehicle volume + average load'
+          }
+        }
+      }
+    }
+  });
+  return chart;
+}
+
+// scatterChart() (plotted avg invoice weight vs. avg gross weight per vehicle
+// type) has been removed along with the "Vehicle Load Accuracy" graph that
+// used it — this dashboard no longer carries any average-calculation charts.
+
+/* ---------------- card / kpi DOM helpers ---------------- */
+function el(tag, cls, html){ const e = document.createElement(tag); if(cls) e.className = cls; if(html!==undefined) e.innerHTML = html; return e; }
+
+function kpiTile({label, value, unit, sub, subClass}){
+  const d = el('div','kpi');
+  d.innerHTML = `<div class="label">${label}</div><div class="value">${value}${unit?`<span class="unit">${unit}</span>`:''}</div>${sub?`<div class="sub ${subClass||''}">${sub}</div>`:''}`;
+  return d;
+}
+
+let cardSeq = 0;
+function chartCard({title, hint, tableCols, tableRows, axisCaption, onUpdate}, buildFn){
+  cardSeq++;
+  const id = 'c'+cardSeq;
+  const card = el('div','card');
+  const head = el('div','card-head');
+  const headLeft = el('div');
+  headLeft.innerHTML = `<h3>${title}</h3>${hint?`<div class="hint">${hint}</div>`:''}`;
+  // Chart types with no literal x/y axis (donut, radar) get their column
+  // source spelled out here instead, in the same red used for every other
+  // chart's axis titles, so every graph — with or without an axis — clearly
+  // states which Excel column drives it.
+  if(axisCaption && axisCaption.length){
+    const capEl = el('div','axis-caption');
+    capEl.innerHTML = axisCaption.map(a=>`<b>${esc(a.role)}:</b> ${esc(a.text)}`).join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+    headLeft.appendChild(capEl);
+  }
+  const totalEl = el('div','chart-total','Total: —');
+  headLeft.appendChild(totalEl);
+  head.appendChild(headLeft);
+  if(tableCols){
+    const btn = el('button','table-toggle','Table');
+    btn.setAttribute('aria-expanded','false');
+    btn.onclick = ()=>{
+      const t = card.querySelector('.data-table');
+      const show = !t.classList.contains('show');
+      t.classList.toggle('show', show);
+      btn.textContent = show ? 'Chart' : 'Table';
+      btn.setAttribute('aria-expanded', String(show));
+    };
+    head.appendChild(btn);
+  }
+  card.appendChild(head);
+  // Chart + legend are kept side-by-side so the clickable X controls
+  // appear on the right instead of taking a row below the graph.
+  const chartBody = el('div','chart-body');
+
+  const wrap = el('div','canvas-wrap');
+  wrap.style.height = '280px';
+  const canvas = document.createElement('canvas');
+  canvas.id = id;
+  wrap.appendChild(canvas);
+  chartBody.appendChild(wrap);
+
+  const legendEl = el('div','chart-legend');
+  canvas._legendEl = legendEl;
+  canvas._totalEl = totalEl;
+  chartBody.appendChild(legendEl);
+
+  card.appendChild(chartBody);
+
+  if(tableCols){
+    const tw = el('div','data-table');
+    let thead = '<tr>'+tableCols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+    let tbody = tableRows.map(r=>'<tr>'+r.map(v=>`<td>${v}</td>`).join('')+'</tr>').join('');
+    tw.innerHTML = `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+    card.appendChild(tw);
+  }
+
+  requestAnimationFrame(()=>{
+    const chart = buildFn(canvas.getContext('2d'));
+    liveCharts.push(chart);
+    // Let the report's KPI row stay in sync with this specific chart's own
+    // selection: every chart builder already calls chart._updateTotal() on
+    // every legend click (to refresh its own "Total"/"Average" footer), so
+    // piggyback the caller's onUpdate on that same hook rather than adding a
+    // second, separate event path.
+    if(onUpdate && chart){
+      const prevUpdateTotal = chart._updateTotal;
+      chart._updateTotal = function(){
+        if(prevUpdateTotal) prevUpdateTotal();
+        onUpdate(chart);
+      };
+    }
+  });
+  return card;
+}
+
+/* =========================================================
+   PLANT-WISE TABLE BREAKDOWN (generic)
+   Every simple "category → Total" data table (the small table behind a
+   chart's "Table" toggle) is built through this helper so it also shows
+   that same total split out by loading plant — one column per plant
+   currently present in the uploaded workbook (read live from
+   DATA.meta.plants, itself derived from the worksheet/tab names actually
+   found in the file — see parseWorkbookFile / computeDashboardData).
+   A workbook with 3 plants gets 3 plant columns, one with 9 gets 9, and a
+   plant with zero matching rows in the active date-range filter simply
+   doesn't get a column — nothing here hardcodes a plant name or count.
+   The per-plant values themselves are NOT recomputed here from raw
+   records — they're passed in as `matrixRows` (one row per category,
+   aligned to DATA.meta.plants), precomputed once in computeDashboardData
+   via the plantBreakdown() helper there. That keeps this function usable
+   even after a page reload restores a dashboard from localStorage, where
+   the raw record list is intentionally not cached but these small
+   per-plant aggregate arrays are. Every plant column plus the trailing
+   Total column is derived from the same source sums, so Total always
+   equals the sum of the plant columns in that row.
+   ========================================================= */
+function plantWiseTable(categoryLabel, totalLabel, categories, matrixRows, fmt){
+  fmt = fmt || ((v)=>fmtNum(v));
+  const plants = (DATA && DATA.meta.plants) || [];
+  const tableCols = [categoryLabel].concat(plants).concat([totalLabel]);
+  const tableRows = categories.map((cat,i)=>{
+    const vals = (matrixRows && matrixRows[i]) || plants.map(()=>0);
+    const total = vals.reduce((a,b)=>a+b,0);
+    return [cat].concat(vals.map(fmt)).concat([fmt(total)]);
+  });
+  return {tableCols, tableRows};
+}
+
+/* =========================================================
+   REPORT DEFINITIONS
+   ========================================================= */
+const ICONS = {
+  plant: '<rect x="3" y="10" width="8" height="9"/><path d="M11 13h3.5L18 16v3h-7"/><circle cx="7" cy="21" r="1.6"/><circle cx="15.5" cy="21" r="1.6"/><path d="M6 10V5l4 3V5l4 3"/>',
+  trend: '<path d="M3 17l5-6 4 3 5-7 4 4"/><path d="M3 21h18"/>',
+  destination: '<path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/>',
+  product: '<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M4 7.5L12 12l8-4.5"/><path d="M12 12v9"/>',
+  transporter: '<rect x="2.5" y="10" width="12" height="7.5"/><path d="M14.5 12.5H18l3.5 3v2h-7"/><circle cx="6.5" cy="19.5" r="1.7"/><circle cx="17.5" cy="19.5" r="1.7"/>',
+  vehtype: '<rect x="3" y="4" width="7" height="7" rx="1.2"/><rect x="14" y="4" width="7" height="7" rx="1.2"/><rect x="3" y="15" width="7" height="7" rx="1.2"/><rect x="14" y="15" width="7" height="7" rx="1.2"/>',
+  locallong: '<path d="M4 12h7"/><path d="M8 8l-4 4 4 4"/><path d="M20 12h-7"/><path d="M16 8l4 4-4 4"/>',
+  billing: '<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/>',
+  customer: '<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6.2 6.5-6.2s6.5 2.6 6.5 6.2"/><circle cx="18" cy="9" r="2.4"/><path d="M15.6 13.6c2.6.4 4.4 2.5 4.4 5.4"/>',
+  special: '<path d="M12 2l2.4 5.3 5.8.6-4.3 4 1.2 5.7L12 14.9 6.9 17.6l1.2-5.7-4.3-4 5.8-.6z"/>',
+  ownership: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 5v14M16 5v14"/>'
+};
+function iconSvg(key){ return `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]}</svg>`; }
+
+const REPORTS = [
+  {
+    id:'plant', icon:'plant',
+    title:'Plant-Wise Dispatch Overview',
+    subtitle:'Tonnage, vehicle count and average load by loading point / plant',
+    render(root){
+      const d = DATA.r1_plant;
+      const kpis = el('div','kpi-row');
+      // KPI tiles are rebuilt from whichever plants are still visible on any
+      // one of the three charts below — hiding a plant on any of them (the
+      // red-X legend) recalculates every tile here from the remaining data,
+      // never from a fixed first-render snapshot.
+      function renderKpis(labels, tonnage, vehicles){
+        const totalTonnage = tonnage.reduce((a,v)=>a+(isFinite(v)?v:0),0);
+        const totalVehicles = vehicles.reduce((a,v)=>a+(isFinite(v)?v:0),0);
+        const avgLoad = totalVehicles ? totalTonnage/totalVehicles : 0; // true weighted average, not an average-of-averages
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'Total Tonnage Dispatched', value:fmtNum(totalTonnage), unit:'MT', sub:'across all plants'}),
+          kpiTile({label:'Total Vehicles Loaded', value:fmtNum(totalVehicles), sub:'dispatch records'}),
+          kpiTile({label:'Average Load per Vehicle', value:fmtNum(avgLoad,2), unit:'MT'}),
+          kpiTile({label:'Active Loading Plants', value:fmtNum(labels.length), sub:labels.join(' · ')||'—'})
+        );
+      }
+      renderKpis(d.labels, d.tonnage, d.vehicles);
+      root.appendChild(kpis);
+      const syncFromChart = (chart)=>{
+        const vis = visibleBarEntries(chart);
+        const idx = vis.map(e=>d.labels.indexOf(e.label)).filter(i=>i>=0);
+        renderKpis(idx.map(i=>d.labels[i]), idx.map(i=>d.tonnage[i]), idx.map(i=>d.vehicles[i]));
+      };
+      const grid = el('div','chart-grid');
+      grid.appendChild(chartCard({title:'Tonnage Dispatched by Plant', hint:'Invoice weight, metric tonnes', tableCols:['Plant','Tonnage (MT)'], tableRows:d.labels.map((l,i)=>[l,fmtNum(d.tonnage[i])]), onUpdate:syncFromChart},
+        (ctx)=>barChart(ctx,{labels:d.labels, values:d.tonnage, color:colors().cat[0], horizontal:true, unit:'MT', categoryLabel:colPlant(), valueLabel:colTonnage()})));
+      grid.appendChild(chartCard({title:'Vehicles Dispatched by Plant', hint:'Count of loaded vehicles', tableCols:['Plant','Vehicles'], tableRows:d.labels.map((l,i)=>[l,fmtNum(d.vehicles[i])]), onUpdate:syncFromChart},
+        (ctx)=>barChart(ctx,{labels:d.labels, values:d.vehicles, color:colors().cat[1], horizontal:true, categoryLabel:colPlant(), valueLabel:colVehicleCount()})));
+      // "Average Load per Vehicle by Plant" graph intentionally removed —
+      // per-plant averages don't belong on a Total/Sum dashboard as a chart;
+      // the weighted "Average Load per Vehicle" KPI tile above still reflects
+      // the true fleet-wide figure (recomputed from the two Total charts).
+      root.appendChild(grid);
+    }
+  },
+  {
+    id:'trend', icon:'trend',
+    title:'Monthly Loading & Tonnage Trend',
+    subtitle:'Month-on-month dispatch tonnage and vehicle volume, by plant',
+    render(root){
+      const d = DATA.r2_trend;
+      const last = d.tonnage[d.tonnage.length-1], prev = d.tonnage[d.tonnage.length-2];
+      const mom = prev ? ((last-prev)/prev*100) : 0;
+      const peakIdx = d.tonnage.indexOf(Math.max(...d.tonnage));
+      const kpis = el('div','kpi-row');
+      kpis.append(
+        kpiTile({label:'Latest Month Tonnage', value:fmtNum(last), unit:'MT', sub:(mom>=0?'▲ ':'▼ ')+fmtPct(Math.abs(mom))+' vs prior month', subClass: mom>=0?'good':'warn'}),
+        kpiTile({label:'Peak Month', value:d.months[peakIdx], sub:fmtNum(d.tonnage[peakIdx])+' MT dispatched'}),
+        kpiTile({label:'Months Tracked', value:fmtNum(d.months.length)}),
+        kpiTile({label:'Avg Monthly Tonnage', value:fmtNum(d.tonnage.reduce((a,b)=>a+b,0)/d.tonnage.length), unit:'MT'})
+      );
+      root.appendChild(kpis);
+      const grid = el('div','chart-grid single');
+      const monthTonnageTbl = plantWiseTable('Month', 'Total Tonnage (MT)', d.months, d.tonnageByPlant);
+      grid.appendChild(chartCard({title:'Monthly Tonnage Trend — All Plants Combined', hint:'Invoice weight dispatched per month, with the per-plant split behind the Table toggle', tableCols:monthTonnageTbl.tableCols, tableRows:monthTonnageTbl.tableRows},
+        (ctx)=>lineChart(ctx,{labels:d.months, series:[{name:'Tonnage', values:d.tonnage, color:colors().cat[0], fill:true}], unit:'MT', categoryLabel:colMonth(), valueLabel:colTonnage()})));
+      const grid2 = el('div','chart-grid');
+      const plantSeries = Object.keys(d.byPlant).map(p=>({name:p, values:d.byPlant[p], color:plantColor(p, getTheme())}));
+      grid2.appendChild(chartCard({title:'Monthly Tonnage Trend by Plant', hint:'Compare dispatch pace across loading points', tableCols:monthTonnageTbl.tableCols, tableRows:monthTonnageTbl.tableRows, axisCaption:[{role:'Series (by)', text:colPlant()}]},
+        (ctx)=>lineChart(ctx,{labels:d.months, series:plantSeries, unit:'MT', categoryLabel:colMonth(), valueLabel:colTonnage()})));
+      const monthVehicleTbl = plantWiseTable('Month', 'Total Vehicles', d.months, d.vehiclesByPlant);
+      grid2.appendChild(chartCard({title:'Monthly Vehicle Count Trend', hint:'Vehicles loaded per month, all plants', tableCols:monthVehicleTbl.tableCols, tableRows:monthVehicleTbl.tableRows},
+        (ctx)=>barChart(ctx,{labels:d.months, values:d.vehicles, color:colors().cat[1], horizontal:false, categoryLabel:colMonth(), valueLabel:colVehicleCount()})));
+      root.appendChild(grid); root.appendChild(grid2);
+    }
+  },
+  {
+    id:'destinations', icon:'destination',
+    title:'Top Destinations by Dispatch Volume',
+    subtitle:'Where loaded material is consigned to, ranked by tonnage and vehicle count',
+    render(root){
+      const d = DATA.r3_destination;
+      const kpis = el('div','kpi-row');
+      function renderKpis(labels, tonnage){
+        const topT = tonnage[0]||0;
+        const top3 = tonnage.slice(0,3).reduce((a,v)=>a+(isFinite(v)?v:0),0);
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'Destinations Served', value:fmtNum(DATA.meta.destinations)}),
+          kpiTile({label:'Top Destination', value:labels[0]||'—', sub:fmtNum(topT)+' MT dispatched'}),
+          kpiTile({label:'Top Destination Share', value:fmtPct(DATA.meta.totalTonnage?topT/DATA.meta.totalTonnage*100:0)}),
+          kpiTile({label:'Top-3 Destination Concentration', value:fmtPct(DATA.meta.totalTonnage?top3/DATA.meta.totalTonnage*100:0)})
+        );
+      }
+      renderKpis(d.labels, d.tonnage);
+      root.appendChild(kpis);
+      const syncFromChart = (chart)=>{
+        const vis = visibleBarEntries(chart);
+        const idx = vis.map(e=>d.labels.indexOf(e.label)).filter(i=>i>=0);
+        renderKpis(idx.map(i=>d.labels[i]), idx.map(i=>d.tonnage[i]));
+      };
+      const grid = el('div','chart-grid');
+      const destTonnageTbl = plantWiseTable('Destination', 'Total Tonnage (MT)', d.labels, d.tonnageByPlant);
+      grid.appendChild(chartCard({title:'Top 25 Destinations by Tonnage', hint:'Metric tonnes dispatched', tableCols:destTonnageTbl.tableCols, tableRows:destTonnageTbl.tableRows, onUpdate:syncFromChart},
+        (ctx)=>barChart(ctx,{labels:d.labels, values:d.tonnage, color:colors().cat[0], horizontal:true, categoryLabel:colDestination(), valueLabel:colTonnage()})));
+      const destVehicleTbl = plantWiseTable('Destination', 'Total Vehicles', d.labels, d.vehiclesByPlant);
+      grid.appendChild(chartCard({title:'Top 25 Destinations by Vehicle Count', hint:'Vehicles dispatched', tableCols:destVehicleTbl.tableCols, tableRows:destVehicleTbl.tableRows, onUpdate:syncFromChart},
+        (ctx)=>barChart(ctx,{labels:d.labels, values:d.vehicles, color:colors().cat[1], horizontal:true, categoryLabel:colDestination(), valueLabel:colVehicleCount()})));
+      root.appendChild(grid);
+    }
+  },
+  {
+    id:'products', icon:'product',
+    title:'Product-Wise Dispatch Share',
+    subtitle:'Tonnage and vehicle mix across product categories (HR, TMT, Billets, CRCA and more)',
+    render(root){
+      const d = DATA.r4_product;
+      const donutN = 5;
+      const top = d.labels.slice(0,donutN), topT = d.tonnage.slice(0,donutN);
+      const otherT = d.tonnage.slice(donutN).reduce((a,b)=>a+b,0);
+      const donutLabels = [...top, 'Other'], donutValues = [...topT, otherT];
+      const kpis = el('div','kpi-row');
+      // These four tiles must never sit fixed once a product is hidden on any
+      // of the charts below (donut, vehicle-count bar or avg-weight bar) —
+      // each one recalculates Leading Product / Top Product Tonnage / Top
+      // Product Vehicle Count / Product Categories from whatever remains
+      // visible, using a Total/Sum aggregation, not a fixed snapshot.
+      function renderKpis(labels, tonnage, vehicles){
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'Product Categories', value:fmtNum(labels.length)+'+'}),
+          kpiTile({label:'Leading Product', value:labels[0]||'—', sub:fmtPct(DATA.meta.totalTonnage?(tonnage[0]||0)/DATA.meta.totalTonnage*100:0)+' of total tonnage'}),
+          kpiTile({label:'Top Product Tonnage', value:fmtNum(tonnage[0]||0), unit:'MT'}),
+          kpiTile({label:'Top Product Vehicle Count', value:fmtNum(vehicles[0]||0)})
+        );
+      }
+      renderKpis(d.labels, d.tonnage, d.vehicles);
+      root.appendChild(kpis);
+      const syncFromBar = (chart)=>{
+        const vis = visibleBarEntries(chart);
+        const idx = vis.map(e=>d.labels.indexOf(e.label)).filter(i=>i>=0);
+        renderKpis(idx.map(i=>d.labels[i]), idx.map(i=>d.tonnage[i]), idx.map(i=>d.vehicles[i]));
+      };
+      const syncFromDonut = (chart)=>{
+        // The donut only carries the top 5 products plus an "Other" bucket,
+        // so a hidden "Other" slice can't be attributed to one product — skip
+        // it and recompute the KPIs from whichever named products remain.
+        const vis = visibleDonutEntries(chart).filter(e=>e.label!=='Other');
+        const idx = vis.map(e=>d.labels.indexOf(e.label)).filter(i=>i>=0);
+        renderKpis(idx.map(i=>d.labels[i]), idx.map(i=>d.tonnage[i]), idx.map(i=>d.vehicles[i]));
+      };
+      const grid = el('div','chart-grid');
+      // The donut only ever carries the top 5 products plus an "Other"
+      // bucket, so the "Other" row's per-plant values are the remaining
+      // (index 5+) product rows of the already-precomputed matrix, summed —
+      // no need to re-scan records for it.
+      const plantsForProduct = DATA.meta.plants;
+      const otherByPlant = plantsForProduct.map((_,pi)=> d.tonnageByPlant.slice(donutN).reduce((a,row)=>a+(row[pi]||0),0));
+      const donutTonnageByPlant = d.tonnageByPlant.slice(0,donutN).concat([otherByPlant]);
+      const productTonnageTbl = plantWiseTable('Product', 'Total Tonnage (MT)', donutLabels, donutTonnageByPlant);
+      grid.appendChild(chartCard({title:'Tonnage Share by Product', hint:'Top 5 products, remainder grouped as Other', tableCols:productTonnageTbl.tableCols, tableRows:productTonnageTbl.tableRows, axisCaption:[{role:'Categories', text:colProduct()},{role:'Values', text:colTonnage()}], onUpdate:syncFromDonut},
+        (ctx)=>donutChart(ctx,{labels:donutLabels, values:donutValues, colorsArr:colors().cat.slice(0,donutN).concat(colors().muted)})));
+      const productVehicleTbl = plantWiseTable('Product', 'Total Vehicles', d.labels, d.vehiclesByPlant);
+      grid.appendChild(chartCard({title:'Vehicle Count by Product', hint:'Top 12 product categories', tableCols:productVehicleTbl.tableCols, tableRows:productVehicleTbl.tableRows, onUpdate:syncFromBar},
+        (ctx)=>barChart(ctx,{labels:d.labels, values:d.vehicles, color:colors().cat[1], horizontal:true, categoryLabel:colProduct(), valueLabel:colVehicleCount()})));
+      // "Average Vehicle Weight by Product" graph intentionally removed —
+      // this dashboard shows Total/Sum breakdowns; per-product averages
+      // don't belong here as a chart.
+      root.appendChild(grid);
+    }
+  },
+  {
+    id:'transporters', icon:'transporter',
+    title:'Transporter & Fleet Owner Performance',
+    subtitle:'Local (BT) vs outstation (OST) split, and top fleet owners by dispatch volume',
+    render(root){
+      const d = DATA.r5_transporter;
+      const kpis = el('div','kpi-row');
+      function renderKpis(topOwnerLabels, topOwnerTonnage, firmLabels, firmTonnage){
+        const btIdx = firmLabels.indexOf('BT');
+        const btTonnage = btIdx>=0 ? (firmTonnage[btIdx]||0) : 0;
+        const btShare = DATA.meta.totalTonnage ? btTonnage/DATA.meta.totalTonnage*100 : 0;
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'Fleet Owners Engaged', value:fmtNum(DATA.meta.transporters)}),
+          kpiTile({label:'Top Fleet Owner', value:topOwnerLabels[0]||'—', sub:fmtNum(topOwnerTonnage[0]||0)+' MT'}),
+          kpiTile({label:'BT (Local Firm) Tonnage Share', value:fmtPct(btShare)}),
+          kpiTile({label:'OST (Outstation) Tonnage Share', value:fmtPct(100-btShare)})
+        );
+      }
+      renderKpis(d.topOwners.labels, d.topOwners.tonnage, d.firmSplit.labels, d.firmSplit.tonnage);
+      root.appendChild(kpis);
+      const syncFromOwnerChart = (chart)=>{
+        const vis = visibleBarEntries(chart);
+        const idx = vis.map(e=>d.topOwners.labels.indexOf(e.label)).filter(i=>i>=0);
+        renderKpis(idx.map(i=>d.topOwners.labels[i]), idx.map(i=>d.topOwners.tonnage[i]), d.firmSplit.labels, d.firmSplit.tonnage);
+      };
+      const syncFromFirmDonut = (chart)=>{
+        const vis = visibleDonutEntries(chart);
+        renderKpis(d.topOwners.labels, d.topOwners.tonnage, vis.map(e=>e.label), vis.map(e=>e.value));
+      };
+      const grid = el('div','chart-grid');
+      const firmTonnageTbl = plantWiseTable('Firm Type', 'Total Tonnage (MT)', d.firmSplit.labels, d.firmSplit.tonnageByPlant);
+      grid.appendChild(chartCard({title:'Dispatch Share by Transport Firm Type', hint:'BT (Balaji Transports) vs OST (outstation) tonnage', tableCols:firmTonnageTbl.tableCols, tableRows:firmTonnageTbl.tableRows, axisCaption:[{role:'Categories', text:colFirm()},{role:'Values', text:colTonnage()}], onUpdate:syncFromFirmDonut},
+        (ctx)=>donutChart(ctx,{labels:d.firmSplit.labels, values:d.firmSplit.tonnage, colorsArr:[colors().cat[0],colors().cat[1]]})));
+      const ownerTonnageTbl = plantWiseTable('Owner', 'Total Tonnage (MT)', d.topOwners.labels, d.topOwners.tonnageByPlant);
+      grid.appendChild(chartCard({title:'Top 25 Fleet Owners by Tonnage', hint:'Vehicle-owning transporters, metric tonnes moved. For the month-wise trend, see the Fleet Owner Tonnage — Month-wise report.', tableCols:ownerTonnageTbl.tableCols, tableRows:ownerTonnageTbl.tableRows, onUpdate:syncFromOwnerChart},
+        (ctx)=>barChart(ctx,{labels:d.topOwners.labels, values:d.topOwners.tonnage, color:colors().cat[0], horizontal:true, categoryLabel:colOwner(), valueLabel:colTonnage()})));
+      // "Fleet Owner Performance — Month-wise" chart intentionally removed from
+      // here — it duplicated the "Fleet Owner Tonnage — Month-wise" report
+      // (same d.ownerMonthly series, same line chart), which already covers
+      // this month-wise breakdown as its own dedicated report.
+      root.appendChild(grid);
+    }
+  },
+  {
+    id:'fleet-owner-monthly', icon:'transporter',
+    title:'Fleet Owner Tonnage — Month-wise',
+    subtitle:'Top 25 fleet owners ranked by total tonnage, broken down by month',
+    render(root){
+      const d = DATA.r5_transporter;
+      const kpis = el('div','kpi-row');
+      function renderKpis(series){
+        const grandTotal = series.reduce((a,s)=>a+s.values.reduce((x,y)=>x+y,0),0);
+        const topOwner = series[0];
+        const topOwnerTotal = topOwner ? topOwner.values.reduce((a,b)=>a+b,0) : 0;
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'Fleet Owners Tracked', value:fmtNum(series.length)}),
+          kpiTile({label:'Months Covered', value:fmtNum(d.ownerMonthly.months.length)}),
+          kpiTile({label:'Top Fleet Owner', value:topOwner?topOwner.name:'—', sub: topOwner? fmtNum(topOwnerTotal)+' MT total':''}),
+          kpiTile({label:'Total Tonnage (Top 25)', value:fmtNum(grandTotal), unit:'MT'})
+        );
+      }
+      renderKpis(d.ownerMonthly.series);
+      root.appendChild(kpis);
+      const grid = el('div','chart-grid single');
+      grid.appendChild(chartCard({
+        title:'Fleet Owner Tonnage — Month-wise',
+        hint:'Top 25 fleet owners ranked by total tonnage (combined across every plant); click the red X to hide/show any owner. For a per-plant split, see the Plant-Wise Dispatch Overview and Monthly Loading & Tonnage Trend reports.',
+        tableCols:['Month'].concat(d.ownerMonthly.series.map(s=>s.name)),
+        tableRows:d.ownerMonthly.months.map((m,mi)=>[m].concat(d.ownerMonthly.series.map(s=>fmtNum(s.values[mi])))),
+        axisCaption:[{role:'Series (by)', text:colOwner()}],
+        onUpdate:(chart)=> renderKpis(visibleSeriesEntries(chart))
+      }, (ctx)=>{
+        const series=d.ownerMonthly.series.map((s,i)=>({name:s.name,values:s.values,color:colors().cat[i%colors().cat.length]}));
+        return lineChart(ctx,{labels:d.ownerMonthly.months,series,unit:'MT', categoryLabel:colMonth(), valueLabel:colTonnage()});
+      }));
+      root.appendChild(grid);
+    }
+  },
+  {
+    id:'vehicle-types', icon:'vehtype',
+    title:'Vehicle Type Utilization',
+    subtitle:'Fleet mix and average load carried across trailer, 16-wheeler, 14-wheeler and more',
+    render(root){
+      const d = DATA.r6_vehtype;
+      const kpis = el('div','kpi-row');
+      function renderKpis(labels, vehicles, avgLoad){
+        let bestIdx = -1;
+        avgLoad.forEach((v,i)=>{ if(bestIdx<0 || v>avgLoad[bestIdx]) bestIdx=i; });
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'Vehicle Type Categories', value:fmtNum(labels.length)}),
+          kpiTile({label:'Most-Used Vehicle Type', value:labels[0]||'—', sub:fmtPct(DATA.meta.totalVehicles?(vehicles[0]||0)/DATA.meta.totalVehicles*100:0)+' of all vehicles'}),
+          kpiTile({label:'Highest Avg Load Type', value:bestIdx>=0?labels[bestIdx]:'—', sub:bestIdx>=0?fmtNum(avgLoad[bestIdx],2)+' MT / vehicle':''}),
+          kpiTile({label:'Fleet-Wide Avg Load', value:fmtNum(DATA.meta.avgLoad,2), unit:'MT'})
+        );
+      }
+      renderKpis(d.labels, d.vehicles, d.avgLoad);
+      root.appendChild(kpis);
+      const syncFromChart = (chart)=>{
+        const vis = visibleBarEntries(chart);
+        const idx = vis.map(e=>d.labels.indexOf(e.label)).filter(i=>i>=0);
+        renderKpis(idx.map(i=>d.labels[i]), idx.map(i=>d.vehicles[i]), idx.map(i=>d.avgLoad[i]));
+      };
+      const grid = el('div','chart-grid');
+      const vehTypeTbl = plantWiseTable('Vehicle Type', 'Total Vehicles', d.labels, d.vehiclesByPlant);
+      grid.appendChild(chartCard({title:'Vehicle Count by Type', hint:'Dispatch records per vehicle category', tableCols:vehTypeTbl.tableCols, tableRows:vehTypeTbl.tableRows, onUpdate:syncFromChart},
+        (ctx)=>barChart(ctx,{labels:d.labels, values:d.vehicles, color:colors().cat[1], horizontal:true, categoryLabel:colVehType(), valueLabel:colVehicleCount()})));
+      // "Average Load Weight by Vehicle Type" graph intentionally removed —
+      // the "Highest Avg Load Type" / "Fleet-Wide Avg Load" KPI tiles above
+      // still surface that figure without a dedicated average-based chart.
+      root.appendChild(grid);
+    }
+  },
+  {
+    id:'local-long', icon:'locallong',
+    title:'Local vs Long-Distance Dispatch Split',
+    subtitle:'Short-haul (local) versus long-distance dispatch, overall and by plant',
+    render(root){
+      const d = DATA.r7_local_long;
+      const kpis = el('div','kpi-row');
+      function renderKpis(labels, tonnage){
+        const localIdx = labels.indexOf('Local');
+        const localT = localIdx>=0 ? (tonnage[localIdx]||0) : 0;
+        const total = DATA.meta.totalTonnage;
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'Local Dispatch Share', value:fmtPct(total?localT/total*100:0)}),
+          kpiTile({label:'Long-Distance Share', value:fmtPct(total?100-localT/total*100:0)}),
+          kpiTile({label:'Local Tonnage', value:fmtNum(localT), unit:'MT'}),
+          kpiTile({label:'Long-Distance Tonnage', value:fmtNum(total-localT), unit:'MT'})
+        );
+      }
+      renderKpis(d.split.labels, d.split.tonnage);
+      root.appendChild(kpis);
+      const grid = el('div','chart-grid');
+      const modeTonnageTbl = plantWiseTable('Mode', 'Total Tonnage (MT)', d.split.labels, d.split.tonnageByPlant);
+      grid.appendChild(chartCard({title:'Local vs Long-Distance Tonnage Split', hint:'Share of total dispatch tonnage', tableCols:modeTonnageTbl.tableCols, tableRows:modeTonnageTbl.tableRows, axisCaption:[{role:'Categories', text:colLocalLong()},{role:'Values', text:colTonnage()}],
+        onUpdate:(chart)=>{ const vis = visibleDonutEntries(chart); renderKpis(vis.map(e=>e.label), vis.map(e=>e.value)); }},
+        (ctx)=>donutChart(ctx,{labels:d.split.labels, values:d.split.tonnage, colorsArr:[colors().cat[0],colors().cat[1]]})));
+      grid.appendChild(chartCard({title:'Local vs Long-Distance Tonnage by Plant', hint:'Stacked comparison across loading points', tableCols:['Plant','Local (MT)','Long (MT)'], tableRows:d.byPlant.labels.map((l,i)=>[l,fmtNum(d.byPlant.local[i]),fmtNum(d.byPlant.long[i])]), axisCaption:[{role:'Series (by)', text:colLocalLong()}]},
+        (ctx)=>stackedBarChart(ctx,{labels:d.byPlant.labels, series:[{name:'Local', values:d.byPlant.local, color:colors().cat[0]},{name:'Long', values:d.byPlant.long, color:colors().cat[1]}], categoryLabel:colPlant(), valueLabel:colTonnage()})));
+      root.appendChild(grid);
+    }
+  },
+  {
+    id:'billing', icon:'billing',
+    title:'Billing Status & Turnaround Time',
+    subtitle:'Billed vs pending dispatches, and average days from loading-ready to billing',
+    render(root){
+      const d = DATA.r8_billing;
+      const kpis = el('div','kpi-row');
+      function renderKpis(statusLabels, statusCount, turnaroundLabels, turnaroundDays){
+        const billed = statusCount[statusLabels.indexOf('Billed')]||0;
+        const pending = statusCount[statusLabels.indexOf('Pending')]||0;
+        const total = billed+pending;
+        const validDays = turnaroundDays.filter(x=>x>0);
+        const avgDays = validDays.length ? validDays.reduce((a,b)=>a+b,0)/validDays.length : 0;
+        let fastestIdx = -1;
+        turnaroundLabels.forEach((l,i)=>{ if(turnaroundDays[i]>0 && (fastestIdx<0 || turnaroundDays[i]<turnaroundDays[fastestIdx])) fastestIdx=i; });
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'Billed Dispatches', value:fmtPct(total?billed/total*100:0), sub:fmtNum(billed)+' records', subClass:'good'}),
+          kpiTile({label:'Pending Billing', value:fmtNum(pending), sub:fmtPct(total?pending/total*100:0)+' of total', subClass:'warn'}),
+          kpiTile({label:'Avg Turnaround (Ready → Billed)', value:fmtNum(avgDays,1), unit:'days'}),
+          kpiTile({label:'Fastest Plant Turnaround', value:fastestIdx>=0?turnaroundLabels[fastestIdx]:'—'})
+        );
+      }
+      renderKpis(d.statusSplit.labels, d.statusSplit.count, d.avgTurnaroundByPlant.labels, d.avgTurnaroundByPlant.days);
+      root.appendChild(kpis);
+      const grid = el('div','chart-grid');
+      const statusTbl = plantWiseTable('Status', 'Total Records', d.statusSplit.labels, d.statusSplit.recordsByPlant);
+      grid.appendChild(chartCard({title:'Billing Status Split', hint:'Share of dispatch records billed vs pending', tableCols:statusTbl.tableCols, tableRows:statusTbl.tableRows, axisCaption:[{role:'Categories', text:colBillings()},{role:'Values', text:colRecordCount()}],
+        onUpdate:(chart)=>{ const vis = visibleDonutEntries(chart); renderKpis(vis.map(e=>e.label), vis.map(e=>e.value), d.avgTurnaroundByPlant.labels, d.avgTurnaroundByPlant.days); }},
+        (ctx)=>donutChart(ctx,{labels:d.statusSplit.labels, values:d.statusSplit.count, colorsArr:[colors().good, colors().warning]})));
+      // "Avg Billing Turnaround by Plant" graph intentionally removed — the
+      // "Avg Turnaround (Ready → Billed)" / "Fastest Plant Turnaround" KPI
+      // tiles above still surface that figure without an average-based chart.
+      grid.appendChild(chartCard({title:'Pending (Unbilled) Vehicles by Plant', hint:'Dispatch records awaiting billing', tableCols:['Plant','Pending'], tableRows:d.pendingByPlant.labels.map((l,i)=>[l,fmtNum(d.pendingByPlant.count[i])])},
+        (ctx)=>barChart(ctx,{labels:d.pendingByPlant.labels, values:d.pendingByPlant.count, color:colors().warning, horizontal:true, categoryLabel:colPlant(), valueLabel:colPendingCount()})));
+      root.appendChild(grid);
+    }
+  },
+  {
+    id:'customers', icon:'customer',
+    title:'Top Customers by Dispatch Volume',
+    subtitle:'Highest-volume parties (customers) ranked by tonnage and vehicle count',
+    render(root){
+      const d = DATA.r9_customer;
+      const kpis = el('div','kpi-row');
+      function renderKpis(labels, tonnage, vehicles){
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'Customers Served', value:fmtNum(DATA.meta.customers)}),
+          kpiTile({label:'Top Customer', value:labels[0]||'—', sub:fmtNum(tonnage[0]||0)+' MT dispatched'}),
+          kpiTile({label:'Top Customer Vehicle Count', value:fmtNum(vehicles[0]||0)}),
+          kpiTile({label:'Avg Tonnage per Customer', value:fmtNum(DATA.meta.customers?DATA.meta.totalTonnage/DATA.meta.customers:0), unit:'MT'})
+        );
+      }
+      renderKpis(d.labels, d.tonnage, d.vehicles);
+      root.appendChild(kpis);
+      const syncFromChart = (chart)=>{
+        const vis = visibleBarEntries(chart);
+        const idx = vis.map(e=>d.labels.indexOf(e.label)).filter(i=>i>=0);
+        renderKpis(idx.map(i=>d.labels[i]), idx.map(i=>d.tonnage[i]), idx.map(i=>d.vehicles[i]));
+      };
+      const grid = el('div','chart-grid');
+      const custTonnageTbl = plantWiseTable('Customer', 'Total Tonnage (MT)', d.labels, d.tonnageByPlant);
+      grid.appendChild(chartCard({title:'Top 25 Customers by Tonnage', hint:'Metric tonnes dispatched per party', tableCols:custTonnageTbl.tableCols, tableRows:custTonnageTbl.tableRows, onUpdate:syncFromChart},
+        (ctx)=>barChart(ctx,{labels:d.labels, values:d.tonnage, color:colors().cat[0], horizontal:true, categoryLabel:colCustomer(), valueLabel:colTonnage()})));
+      const custVehicleTbl = plantWiseTable('Customer', 'Total Vehicles', d.labels, d.vehiclesByPlant);
+      grid.appendChild(chartCard({title:'Top 25 Customers by Vehicle Count', hint:'Number of vehicles dispatched per party', tableCols:custVehicleTbl.tableCols, tableRows:custVehicleTbl.tableRows, onUpdate:syncFromChart},
+        (ctx)=>barChart(ctx,{labels:d.labels, values:d.vehicles, color:colors().cat[1], horizontal:true, categoryLabel:colCustomer(), valueLabel:colVehicleCount()})));
+      root.appendChild(grid);
+    }
+  },
+  {
+    id:'customer-monthly', icon:'customer',
+    title:'Customer Tonnage — Month-wise',
+    subtitle:'Top 25 customers ranked by total tonnage, broken down by month',
+    render(root){
+      const d = DATA.r9b_customer_monthly;
+      const kpis = el('div','kpi-row');
+      function renderKpis(series){
+        const grandTotal = series.reduce((a,s)=>a+s.values.reduce((x,y)=>x+y,0),0);
+        const topCustomer = series[0];
+        const topCustomerTotal = topCustomer ? topCustomer.values.reduce((a,b)=>a+b,0) : 0;
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'Customers Tracked', value:fmtNum(series.length)}),
+          kpiTile({label:'Months Covered', value:fmtNum(d.months.length)}),
+          kpiTile({label:'Top Customer', value:topCustomer?topCustomer.name:'—', sub: topCustomer? fmtNum(topCustomerTotal)+' MT total':''}),
+          kpiTile({label:'Total Tonnage (Top 25)', value:fmtNum(grandTotal), unit:'MT'})
+        );
+      }
+      renderKpis(d.series);
+      root.appendChild(kpis);
+      const grid = el('div','chart-grid single');
+      grid.appendChild(chartCard({
+        title:'Customer Tonnage — Month-wise',
+        hint:'Top 25 customers ranked by total tonnage (combined across every plant); click the red X to hide/show any customer. For a per-plant split, see the Plant-Wise Dispatch Overview and Monthly Loading & Tonnage Trend reports.',
+        tableCols:['Month'].concat(d.series.map(s=>s.name)),
+        tableRows:d.months.map((m,mi)=>[m].concat(d.series.map(s=>fmtNum(s.values[mi])))),
+        axisCaption:[{role:'Series (by)', text:colCustomer()}],
+        onUpdate:(chart)=> renderKpis(visibleSeriesEntries(chart))
+      }, (ctx)=>{
+        const series=d.series.map((s,i)=>({name:s.name,values:s.values,color:colors().cat[i%colors().cat.length]}));
+        return lineChart(ctx,{labels:d.months,series,unit:'MT', categoryLabel:colMonth(), valueLabel:colTonnage()});
+      }));
+      root.appendChild(grid);
+    }
+  },
+  {
+    id:'special-orders', icon:'special',
+    title:'Special Orders & Load Weight Efficiency',
+    subtitle:'Special vs normal order mix, and gross-vs-invoice weight variance by plant & vehicle type',
+    render(root){
+      const d = DATA.r10_special;
+      const kpis = el('div','kpi-row');
+      function renderKpis(splitLabels, splitCount, varianceValues){
+        const spclIdx = splitLabels.indexOf('Spcl');
+        const spclCount = spclIdx>=0 ? splitCount[spclIdx] : 0;
+        const totalOrders = splitCount.reduce((a,b)=>a+b,0);
+        const avgVar = varianceValues.length ? varianceValues.reduce((a,b)=>a+b,0)/varianceValues.length : 0;
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'Special Orders', value:fmtPct(totalOrders?spclCount/totalOrders*100:0), sub:fmtNum(spclCount)+' records'}),
+          kpiTile({label:'Normal Orders', value:fmtPct(totalOrders?100-spclCount/totalOrders*100:0)}),
+          kpiTile({label:'Avg Weight Variance', value:fmtNum(avgVar,3), unit:'MT'}),
+          kpiTile({label:'Total Dispatch Records', value:fmtNum(totalOrders)})
+        );
+      }
+      renderKpis(d.split.labels, d.split.count, d.varianceByPlant.avgVariance);
+      root.appendChild(kpis);
+      const grid = el('div','chart-grid');
+      const orderTypeTbl = plantWiseTable('Order Type', 'Total Records', d.split.labels, d.split.recordsByPlant);
+      grid.appendChild(chartCard({title:'Special vs Normal Order Split', hint:'Share of dispatch records by order type', tableCols:orderTypeTbl.tableCols, tableRows:orderTypeTbl.tableRows, axisCaption:[{role:'Categories', text:colSpclOrd()},{role:'Values', text:colRecordCount()}],
+        onUpdate:(chart)=>{ const vis = visibleDonutEntries(chart); renderKpis(vis.map(e=>e.label), vis.map(e=>e.value), d.varianceByPlant.avgVariance); }},
+        (ctx)=>donutChart(ctx,{labels:d.split.labels, values:d.split.count, colorsArr:[colors().cat[0],colors().cat[1],colors().cat[3]]})));
+      // "Avg Gross–Invoice Weight Variance by Plant" and "Avg Weight Variance
+      // by Vehicle Type" graphs intentionally removed — the "Avg Weight
+      // Variance" KPI tile above still surfaces that figure without an
+      // average-based chart.
+      root.appendChild(grid);
+    }
+  },
+  {
+    id:'exceptional', icon:'special',
+    title:'Executive Intelligence & Exceptional Analytics',
+    subtitle:'Three decision-ready views for momentum, plant performance and loading accuracy',
+    render(root){
+      const d = DATA.r11_exceptional;
+
+      const validMom = d.momentum.momPct.filter((v,i)=>i>0 && isFinite(v));
+      const avgMom = validMom.length ? validMom.reduce((a,b)=>a+b,0)/validMom.length : 0;
+      const peakIdx = d.momentum.tonnage.length ? d.momentum.tonnage.indexOf(Math.max(...d.momentum.tonnage)) : 0;
+      const topPlantIdx = d.plantIndex.score.length ? d.plantIndex.score.indexOf(Math.max(...d.plantIndex.score)) : 0;
+      const strongestVehicle = d.vehicleWeight.length ? d.vehicleWeight[0].name : '—';
+
+      const kpis = el('div','kpi-row');
+      kpis.append(
+        kpiTile({label:'Avg Monthly Momentum', value:(avgMom>=0?'▲ ':'▼ ')+fmtPct(Math.abs(avgMom)), sub:'average MoM tonnage movement', subClass:avgMom>=0?'good':'warn'}),
+        kpiTile({label:'Peak Dispatch Month', value:d.momentum.months[peakIdx]||'—', sub:d.momentum.tonnage[peakIdx]!=null?fmtNum(d.momentum.tonnage[peakIdx])+' MT':''}),
+        kpiTile({label:'Top Plant Performance Index', value:d.plantIndex.labels[topPlantIdx]||'—', sub:d.plantIndex.score[topPlantIdx]!=null?fmtNum(d.plantIndex.score[topPlantIdx],1)+' / 100':''}),
+        kpiTile({label:'Highest-Volume Vehicle Type', value:strongestVehicle, sub:d.vehicleWeight.length?fmtNum(d.vehicleWeight[0].count)+' dispatches':'—'})
+      );
+      root.appendChild(kpis);
+
+      const grid1 = el('div','chart-grid');
+      const momentumTbl = plantWiseTable('Month', 'Total Tonnage (MT)', d.momentum.months, d.momentum.tonnageByPlant);
+      grid1.appendChild(chartCard({
+        title:'Dispatch Momentum — Tonnage & Month-over-Month Change',
+        hint:'Use the trend to identify acceleration, slowdown and peak operating periods. MoM Change is a rate (not a summed quantity), so it is shown once for the combined total rather than split per plant.',
+        tableCols:momentumTbl.tableCols.concat(['MoM Change']),
+        tableRows:momentumTbl.tableRows.map((row,i)=>row.concat([i===0?'—':fmtPct(d.momentum.momPct[i])]))
+      }, (ctx)=>{
+        const labels=d.momentum.months, vals=d.momentum.tonnage;
+        return lineChart(ctx,{labels,series:[{name:'Tonnage',values:vals,color:colors().cat[0],fill:true}],unit:'MT', categoryLabel:colMonth(), valueLabel:colTonnage()});
+      }));
+
+      grid1.appendChild(chartCard({
+        title:'Plant Performance Index — Composite Score',
+        hint:'Equal-weight score from normalized tonnage, vehicle volume and average load; 100 = strongest plant in the current view',
+        tableCols:['Plant','Index'],
+        tableRows:d.plantIndex.labels.map((l,i)=>[l,fmtNum(d.plantIndex.score[i],1)]),
+        axisCaption:[{role:'Categories', text:colPlant()},{role:'Values', text:colPlantIndex()}]
+      }, (ctx)=>radarChart(ctx,{labels:d.plantIndex.labels,values:d.plantIndex.score,unit:''})));
+      root.appendChild(grid1);
+      // "Vehicle Load Accuracy — Invoice Weight vs Gross Weight" scatter
+      // graph intentionally removed — it plotted average invoice weight vs.
+      // average gross weight per vehicle type, which is exactly the kind of
+      // average-calculation chart this dashboard should not show.
+    }
+  },
+  {
+    id:'bt-ost', icon:'ownership',
+    title:'BT vs OST Vehicle Table',
+    subtitle:'Balaji Transports (BT) versus attached / other vehicles (OST)',
+    render(root){
+      const d=DATA.r12_bt_ost;
+      const bt=d.summary.find(x=>x.code==='BT')||{records:0,tonnage:0,vehicles:0,owners:0};
+      const ost=d.summary.find(x=>x.code==='OST')||{records:0,tonnage:0,vehicles:0,owners:0};
+      const total=d.totalRecords||0;
+      const kpis=el('div','kpi-row');
+      kpis.append(
+        kpiTile({label:'BT — Balaji Transports',value:fmtNum(bt.records),sub:fmtNum(bt.tonnage)+' MT · '+fmtNum(bt.vehicles)+' vehicles'}),
+        kpiTile({label:'OST — Attached / Other Vehicles',value:fmtNum(ost.records),sub:fmtNum(ost.tonnage)+' MT · '+fmtNum(ost.vehicles)+' vehicles'}),
+        kpiTile({label:'OST Share of Dispatches',value:fmtPct(total?ost.records/total*100:0),sub:'of BT + OST records'}),
+        kpiTile({label:'OST Share of Tonnage',value:fmtPct(d.totalTonnage?ost.tonnage/d.totalTonnage*100:0),sub:'of BT + OST tonnage'})
+      );
+      root.appendChild(kpis);
+
+      const plants = DATA.meta.plants;
+
+      // Summary table: every additive metric (records, tonnage, distinct
+      // vehicles, distinct owners) is broken out per plant, dynamically —
+      // one pair of columns per plant currently in the workbook, plus the
+      // existing combined Total. Share of Records / Share of Tonnage are
+      // percentages of the grand total (not a summed quantity), so they
+      // stay as a single combined figure per row.
+      const summaryCard=el('div','card');
+      const sh=el('div','card-head');
+      sh.innerHTML='<div><h3>BT vs OST Summary</h3><div class="hint">BT = Balaji Transports · OST = attached / other vehicles used for transport &mdash; Records, Tonnage, Vehicles and Owners are shown per plant, with the combined Total alongside</div></div>';
+      summaryCard.appendChild(sh);
+      const st=el('div','data-table show bt-ost-table');
+      const metricHead = (label)=> plants.map(p=>'<th>'+esc(label+' — '+p)+'</th>').join('')+'<th>'+esc(label+' — Total')+'</th>';
+      const metricCells = (rows)=> plants.map((p,i)=>'<td>'+fmtNum(rows[i])+'</td>').join('')+'<td><b>'+fmtNum(rows.reduce((a,b)=>a+b,0))+'</b></td>';
+      st.innerHTML='<table><thead><tr><th>Category</th>'+metricHead('Records')+metricHead('Tonnage (MT)')+'<th>Share of Records</th><th>Share of Tonnage</th>'+metricHead('Vehicles')+metricHead('Owners')+'</tr></thead><tbody>'+
+        d.summary.map(x=>{
+          // x.byPlant is precomputed in computeDashboardData (aligned to
+          // DATA.meta.plants) — no record scan needed here, which also keeps
+          // this table correct when the dashboard is restored from its
+          // cached (records-free) localStorage snapshot.
+          return '<tr><td>'+esc(x.label)+'</td>'+
+            metricCells(x.byPlant.map(g=>g.records))+
+            metricCells(x.byPlant.map(g=>g.tonnage))+
+            '<td>'+fmtPct(total?x.records/total*100:0)+'</td><td>'+fmtPct(d.totalTonnage?x.tonnage/d.totalTonnage*100:0)+'</td>'+
+            metricCells(x.byPlant.map(g=>g.vehicles))+
+            metricCells(x.byPlant.map(g=>g.owners))+
+            '</tr>';
+        }).join('')+
+        '</tbody></table>';
+      summaryCard.appendChild(st); root.appendChild(summaryCard);
+
+      // OST Vehicle-wise Details: each vehicle's Dispatches and Tonnage are
+      // totals across every plant it loaded from — split those per plant
+      // too, from the precomputed x.byPlant (see R12 in computeDashboardData).
+      // Avg Load stays a single combined figure (a ratio, not a summed
+      // quantity) and Destinations remains the joined list.
+      const vehicleCard=el('div','card');
+      const vh=el('div','card-head');
+      vh.innerHTML='<div><h3>OST Vehicle-wise Details</h3><div class="hint">Only vehicles classified as OST are shown, ranked by total invoice weight &mdash; Dispatches and Tonnage are shown per plant, with the combined Total alongside</div></div>';
+      vehicleCard.appendChild(vh);
+      const vt=el('div','data-table show bt-ost-table');
+      vt.innerHTML='<table><thead><tr><th>Vehicle No</th><th>Owner</th><th>Vehicle Type</th>'+metricHead('Dispatches')+metricHead('Tonnage (MT)')+'<th>Avg Load (MT)</th><th>Destinations</th></tr></thead><tbody>'+
+        d.ostVehicles.map(x=>{
+          const disp = x.byPlant.map(g=>g.dispatches);
+          const tonn = x.byPlant.map(g=>g.tonnage);
+          return '<tr><td>'+esc(x.vehicle)+'</td><td>'+esc(x.owner)+'</td><td>'+esc(x.type)+'</td>'+
+            metricCells(disp)+metricCells(tonn)+
+            '<td>'+fmtNum(x.avgLoad,2)+'</td><td>'+esc(x.destinations)+'</td></tr>';
+        }).join('')+
+        '</tbody></table>';
+      vehicleCard.appendChild(vt); root.appendChild(vehicleCard);
+    }
+  },
+  {
+    id:'bt-ost-monthly', icon:'ownership',
+    title:'BT vs OST — Month-wise',
+    subtitle:'Monthly loadings split between BT (own fleet) and OST (attached / other vehicles), with OST’s share tracked against the 10% target',
+    render(root){
+      const d = DATA.r12b_bt_ost_monthly;
+      const target = d.ostTargetPct;
+      const kpis = el('div','kpi-row');
+      function renderKpis(months, btRecords, ostRecords, ostPct){
+        const totalBt = btRecords.reduce((a,b)=>a+b,0);
+        const totalOst = ostRecords.reduce((a,b)=>a+b,0);
+        const totalPct = (totalBt+totalOst) ? round(totalOst/(totalBt+totalOst)*100,1) : 0;
+        const latestIdx = months.length-1;
+        const latestPct = latestIdx>=0 ? ostPct[latestIdx] : 0;
+        kpis.innerHTML = '';
+        kpis.append(
+          kpiTile({label:'BT Loadings', value:fmtNum(totalBt), sub:'across '+fmtNum(months.length)+' month(s)'}),
+          kpiTile({label:'OST Loadings', value:fmtNum(totalOst), sub:'across '+fmtNum(months.length)+' month(s)'}),
+          kpiTile({label:'OST % of Loadings (Overall)', value:fmtPct(totalPct), sub:(totalPct<target?'▼ within target':'▲ above target')+' ('+fmtNum(target)+'% target)', subClass: totalPct<target?'good':'warn'}),
+          kpiTile({label:'Latest Month OST %', value:months.length?fmtPct(latestPct):'—', sub:months.length?months[latestIdx]:'', subClass: latestPct<target?'good':'warn'})
+        );
+      }
+      renderKpis(d.months, d.btRecords, d.ostRecords, d.ostPct);
+      root.appendChild(kpis);
+
+      // Table layout, not charts: BT / OST (and OST %) as rows, one column
+      // per month — the same shape as the month-wise workbook export, always
+      // visible (no chart / "Table" toggle to click through).
+      const pctCellStyle = (v)=> 'style="font-weight:600;color:'+(v<target?'var(--good)':'#b91c1c')+'"';
+
+      const loadingsCard = el('div','card');
+      const lh = el('div','card-head');
+      lh.innerHTML = '<div><h3>Loadings by Month — BT vs OST</h3><div class="hint">Count of dispatch records per month for each firm type, with OST’s share of that month’s loadings against the '+fmtNum(target)+'% target</div></div>';
+      loadingsCard.appendChild(lh);
+      const lt = el('div','data-table show bt-ost-table');
+      const monthTotal = (arr)=> arr.reduce((a,b)=>a+b,0);
+      lt.innerHTML = '<table><thead><tr><th>Firm</th>'+d.months.map(m=>'<th>'+esc(m)+'</th>').join('')+'<th>Total</th></tr></thead><tbody>'+
+        '<tr><td>BT</td>'+d.btRecords.map(v=>'<td>'+fmtNum(v)+'</td>').join('')+'<td><b>'+fmtNum(monthTotal(d.btRecords))+'</b></td></tr>'+
+        '<tr><td>OST</td>'+d.ostRecords.map(v=>'<td>'+fmtNum(v)+'</td>').join('')+'<td><b>'+fmtNum(monthTotal(d.ostRecords))+'</b></td></tr>'+
+        '<tr><td>Total</td>'+d.months.map((m,i)=>'<td>'+fmtNum(d.btRecords[i]+d.ostRecords[i])+'</td>').join('')+'<td><b>'+fmtNum(monthTotal(d.btRecords)+monthTotal(d.ostRecords))+'</b></td></tr>'+
+        '<tr><td>OST %</td>'+d.ostPct.map(v=>'<td '+pctCellStyle(v)+'>'+fmtPct(v)+'</td>').join('')+'<td '+pctCellStyle(d.totalOstPct)+'><b>'+fmtPct(d.totalOstPct)+'</b></td></tr>'+
+        '</tbody></table>';
+      loadingsCard.appendChild(lt);
+      root.appendChild(loadingsCard);
+
+      const tonnageCard = el('div','card');
+      const th_ = el('div','card-head');
+      th_.innerHTML = '<div><h3>Tonnage by Month — BT vs OST (MT)</h3><div class="hint">Invoice weight dispatched per month for each firm type</div></div>';
+      tonnageCard.appendChild(th_);
+      const tt = el('div','data-table show bt-ost-table');
+      const totalBtT = monthTotal(d.btTonnage), totalOstT = monthTotal(d.ostTonnage);
+      tt.innerHTML = '<table><thead><tr><th>Firm</th>'+d.months.map(m=>'<th>'+esc(m)+'</th>').join('')+'<th>Total</th></tr></thead><tbody>'+
+        '<tr><td>BT</td>'+d.btTonnage.map(v=>'<td>'+fmtNum(v,1)+'</td>').join('')+'<td><b>'+fmtNum(totalBtT,1)+'</b></td></tr>'+
+        '<tr><td>OST</td>'+d.ostTonnage.map(v=>'<td>'+fmtNum(v,1)+'</td>').join('')+'<td><b>'+fmtNum(totalOstT,1)+'</b></td></tr>'+
+        '<tr><td>Total</td>'+d.months.map((m,i)=>'<td>'+fmtNum(d.btTonnage[i]+d.ostTonnage[i],1)+'</td>').join('')+'<td><b>'+fmtNum(totalBtT+totalOstT,1)+'</b></td></tr>'+
+        '</tbody></table>';
+      tonnageCard.appendChild(tt);
+      root.appendChild(tonnageCard);
+
+      const legend = el('div','exceptional-note','BT = Balaji Transports’ own fleet · OST = attached / other vehicles used when required. OST % is shown in green when it is under the '+fmtNum(target)+'% target and in red when it is at or above it.');
+      root.appendChild(legend);
+    }
+  }
+];
+
+/* =========================================================
+   NAV + ROUTING + LOADING UX
+   ========================================================= */
+const railNav = document.getElementById('railNav');
+REPORTS.forEach((r,i)=>{
+  const btn = el('button','rail-item');
+  btn.dataset.id = r.id;
+  btn.dataset.search = (r.title+' '+r.subtitle).toLowerCase();
+  btn.innerHTML = `<span class="num">${String(i+1).padStart(2,'0')}</span>${iconSvg(r.icon)}<span class="lbl">${r.title}</span>`;
+  btn.addEventListener('click', ()=> selectReport(r.id, true));
+  railNav.appendChild(btn);
+});
+
+const contentInner = document.getElementById('contentInner');
+const reportTitleEl = document.getElementById('reportTitle');
+const reportSubtitleEl = document.getElementById('reportSubtitle');
+const topbarMetaEl = document.getElementById('topbarMeta');
+
+let currentId = null;
+function skeleton(){
+  const s1 = el('div','skeleton-grid');
+  for(let i=0;i<4;i++) s1.appendChild(el('div','skel kpi-skel'));
+  const s2 = el('div','skel-chart-grid');
+  for(let i=0;i<2;i++) s2.appendChild(el('div','skel chart-skel'));
+  const wrap = el('div');
+  wrap.append(s1,s2);
+  return wrap;
+}
+
+function selectReport(id, userInitiated){
+  const report = REPORTS.find(r=>r.id===id);
+  if(!report || id===currentId){ closeRailOnMobile(); return; }
+  currentId = id;
+  document.querySelectorAll('.rail-item').forEach(b=> b.classList.toggle('active', b.dataset.id===id));
+  reportTitleEl.textContent = report.title;
+  reportSubtitleEl.textContent = report.subtitle;
+
+  contentInner.classList.remove('ready');
+  const delay = userInitiated ? 420 : 60;
+  contentInner.innerHTML = '';
+  contentInner.appendChild(skeleton());
+  contentInner.classList.add('ready');
+
+  setTimeout(()=>{
+    destroyCharts();
+    contentInner.innerHTML = '';
+    try{
+      report.render(contentInner);
+    }catch(e){
+      console.error(e);
+      contentInner.innerHTML = '';
+      const err = el('div','panel-loading');
+      err.innerHTML = '<span>This report could not be rendered. Try refreshing the page.</span>';
+      contentInner.appendChild(err);
+    }
+    closeRailOnMobile();
+  }, delay);
+}
+
+/* ---------------- sidebar search ---------------- */
+document.getElementById('navSearch').addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('.rail-item').forEach(btn=>{
+    btn.classList.toggle('hidden', q.length>0 && !btn.dataset.search.includes(q));
+  });
+});
+
+/* ---------------- mobile rail toggle ---------------- */
+const rail = document.getElementById('rail');
+const scrim = document.getElementById('railScrim');
+document.getElementById('hamburgerBtn').addEventListener('click', ()=>{
+  rail.classList.add('open'); scrim.classList.add('show');
+});
+scrim.addEventListener('click', closeRailOnMobile);
+function closeRailOnMobile(){ rail.classList.remove('open'); scrim.classList.remove('show'); }
+
+/* ---------------- theme change → re-render live charts ---------------- */
+function rerenderForTheme(){
+  if(!currentId) return;
+  const report = REPORTS.find(r=>r.id===currentId);
+  destroyCharts();
+  contentInner.innerHTML = '';
+  report.render(contentInner);
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rerenderForTheme);
+new MutationObserver(rerenderForTheme).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+
+/* =========================================================
+   EXCEL INGEST — parse & aggregate whatever workbook is uploaded
+   (nothing about any specific file is hardcoded; every report
+   above is driven entirely by the DATA shape produced here)
+   ========================================================= */
+const STORAGE_KEY = 'loadingReportsDashboard:v2';
+
+function normHeader(h){ return String(h==null?'':h).replace(/\n/g,' ').replace(/\s+/g,' ').trim(); }
+const HEADER_RENAME = {
+  'Local / Long':'Local/Long', 'Local /Long':'Local/Long',
+  'SPCL/ ORD':'SpclOrd', 'SPCL/ORD':'SpclOrd', 'SPCL/ VEH':'SpclOrd', 'SPCL/VEH':'SpclOrd',
+  'Loading Ready Date':'LoadingReadyDate', 'Loading Report Date':'LoadingReadyDate',
+  'Bill date':'BillDate'
+};
+/* ---------------- dynamic axis-label helpers ----------------
+   Every chart axis / caption below is labelled with the ACTUAL Excel column
+   that feeds it. col() looks up the literal header text captured from the
+   workbook that is currently loaded (see parseWorkbookFile) — nothing here
+   is a hardcoded guess at a column name. If a differently-shaped Loading
+   Report workbook is uploaded, every label updates to match its real headers.
+------------------------------------------------------------------ */
+function col(key){ return (COLUMN_HEADERS && COLUMN_HEADERS[key]) || key; }
+function colTonnage(){ return col('Inv Wt')+' — Σ Tonnage (MT)'; }
+function colVehicleCount(){ return col('Vehicle No')+' — Count'; }
+function colAvgLoad(){ return col('Inv Wt')+' ÷ '+col('Vehicle No')+' — Avg MT/Vehicle'; }
+function colAvgGrossWt(){ return col('Gross Wt')+' — Avg (MT)'; }
+function colAvgInvoiceWt(){ return col('Inv Wt')+' — Avg (MT)'; }
+function colAvgVariance(){ return col('Gross Wt')+' − '+col('Inv Wt')+' — Avg (MT)'; }
+function colTurnaroundDays(){ return col('LoadingReadyDate')+' → '+col('BillDate')+' — Avg Days'; }
+function colPendingCount(){ return col('Billings')+' — Pending Count'; }
+function colRecordCount(){ return col('Vehicle No')+' — Record Count'; }
+function colMonth(){ return col('Shipment Date')+' — Month'; }
+function colPlant(){ return col('Plant'); }
+function colDestination(){ return col('Destination'); }
+function colCustomer(){ return col('Short Party'); }
+function colProduct(){ return col('Short Product'); }
+function colVehType(){ return col('Veh Type'); }
+function colOwner(){ return col('Owner'); }
+function colFirm(){ return col('Firm'); }
+function colLocalLong(){ return col('Local/Long'); }
+function colSpclOrd(){ return col('SpclOrd'); }
+function colBillings(){ return col('Billings'); }
+function colPlantIndex(){ return 'Composite Index — from '+col('Inv Wt')+', '+col('Vehicle No'); }
+
+function isBlankToken(v){ if(v==null) return true; const s=String(v).trim(); return s===''||s.toLowerCase()==='nan'||s.toLowerCase()==='none'||s==='0'; }
+function toNum(v){ if(v==null||v==='') return NaN; const n = typeof v==='number'? v : parseFloat(v); return isFinite(n)?n:NaN; }
+function toDate(v){
+  if(v instanceof Date && !isNaN(v)) return v;
+  if(typeof v==='number'){ const d = XLSX.SSF.parse_date_code(v); if(d) return new Date(d.y,d.m-1,d.d); }
+  if(typeof v==='string' && v.trim()){ const d = new Date(v); if(!isNaN(d)) return d; }
+  return null;
+}
+function ymKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function isoDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function round(n,d){ const m=Math.pow(10,d); return Math.round((n+Number.EPSILON)*m)/m; }
+function fyLabel(d){
+  if(!d) return 'Dispatch Analytics';
+  const y = d.getMonth()>=3 ? d.getFullYear() : d.getFullYear()-1;
+  return 'FY '+y+'–'+String((y+1)%100).padStart(2,'0')+' · Dispatch Analytics';
+}
+
+/* ---------------- date/calendar helpers (filter bar) ---------------- */
+function fromISO(iso){ const [y,m,d] = iso.split('-').map(Number); return new Date(y, m-1, d); }
+function displayDate(iso){ if(!iso) return '—'; return fromISO(iso).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+const MONTH_LABELS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function monthLabel(d){ return MONTH_LABELS[d.getMonth()]+' '+d.getFullYear(); }
+function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
+function addMonths(d,n){ return new Date(d.getFullYear(), d.getMonth()+n, 1); }
+function daysInMonth(d){ return new Date(d.getFullYear(), d.getMonth()+1, 0).getDate(); }
+const WEEKDAY_LABELS = ['S','M','T','W','T','F','S'];
+function monthCells(viewMonth){
+  const first = startOfMonth(viewMonth);
+  const startDow = first.getDay();
+  const total = daysInMonth(viewMonth);
+  const cells = [];
+  for(let i=0;i<startDow;i++) cells.push(null);
+  for(let d=1; d<=total; d++) cells.push(new Date(viewMonth.getFullYear(), viewMonth.getMonth(), d));
+  return cells;
+}
+/* Dates are taken directly from the workbook's Shipment Date column,
+   covering every date that actually exists in the Excel sheet. */
+function computeAvailableDates(records){
+  const s = new Set();
+  for(const r of records){
+    const d = r._ShipDate || toDate(r['Shipment Date']);
+    if(d) s.add(isoDate(d));
+  }
+  return s;
+}
+function computeWorkbookDateBounds(records){
+  const dates = [];
+  for(const r of records){
+    const d = r._ShipDate || toDate(r['Shipment Date']);
+    if(d) dates.push(d);
+  }
+  if(!dates.length) return {min:null,max:null};
+  return {
+    min: isoDate(new Date(Math.min(...dates))),
+    max: isoDate(new Date(Math.max(...dates)))
+  };
+}
+
+function canonicalizeColumn(records, col){
+  const freq = new Map();
+  for(const r of records){
+    let v = r[col];
+    if(isBlankToken(v)){ r[col] = null; continue; }
+    v = String(v).trim();
+    const key = v.toUpperCase();
+    if(!freq.has(key)) freq.set(key, new Map());
+    const m = freq.get(key);
+    m.set(v, (m.get(v)||0)+1);
+    r[col] = v;
+  }
+  const modeMap = new Map();
+  for(const [key,m] of freq){
+    let best=null,bestC=-1;
+    for(const [val,c] of m){ if(c>bestC){best=val;bestC=c;} }
+    modeMap.set(key,best);
+  }
+  for(const r of records){
+    if(r[col]==null) continue;
+    r[col] = modeMap.get(String(r[col]).toUpperCase());
+  }
+}
+
+function groupSumCount(records, keyField, sumField){
+  const map = new Map();
+  for(const r of records){
+    const k = r[keyField];
+    if(k==null) continue;
+    if(!map.has(k)) map.set(k,{sum:0,count:0});
+    const g = map.get(k);
+    const v = r[sumField];
+    if(isFinite(v)) g.sum += v;
+    g.count++;
+  }
+  return map;
+}
+function topSorted(map, n){
+  return Array.from(map.entries()).map(([k,v])=>({k, tonnage:v.sum, vehicles:v.count}))
+    .sort((a,b)=>b.tonnage-a.tonnage).slice(0,n);
+}
+// Precomputed, cache-safe plant breakdown for a data table: one row per
+// `cats` entry, each row an array aligned to `plants`, giving the summed
+// valFn() contribution of every record whose catFn() matches that category,
+// split by record.Plant. Computed once here (inside computeDashboardData,
+// which already runs a handful of full record passes on every
+// upload/filter change) and stored on the corresponding out.rX_* object, so
+// every report's table can be built from it later without re-scanning the
+// raw records — which matters because the raw record list is deliberately
+// NOT what gets cached to localStorage (see handleFile), only these small
+// aggregate arrays are.
+function plantBreakdown(records, catFn, valFn, cats, plants, decimals){
+  const matrix = new Map(); // category -> Map(plant -> summed value)
+  for(const r of records){
+    const c = catFn(r);
+    if(c==null || c==='') continue;
+    const v = valFn(r);
+    if(!isFinite(v)) continue;
+    if(!matrix.has(c)) matrix.set(c, new Map());
+    const pm = matrix.get(c);
+    pm.set(r.Plant, (pm.get(r.Plant)||0) + v);
+  }
+  const d = decimals==null ? 1 : decimals;
+  return cats.map(c=>{
+    const pm = matrix.get(c) || new Map();
+    return plants.map(p=> round(pm.get(p)||0, d));
+  });
+}
+
+async function parseWorkbookFile(file){
+  const buf = await file.arrayBuffer();
+  // cellDates:true is intentionally NOT used here: SheetJS constructs its
+  // epoch reference date with the LOCAL Date constructor, so in any browser
+  // whose timezone isn't UTC it silently shifts every parsed date back by
+  // one calendar day (confirmed against the source workbook: every date
+  // came out ~1 day early in IST). Keeping raw numeric serials here and
+  // decoding them ourselves in toDate() via XLSX.SSF.parse_date_code (pure
+  // {y,m,d} arithmetic, no epoch Date object, no timezone dependence) gives
+  // the correct calendar date in every timezone.
+  const wb = XLSX.read(buf, {type:'array'});
+  const records = [];
+  const headerMap = {}; // canonical field -> literal header text exactly as it appears in THIS workbook
+  for(const sn of wb.SheetNames){
+    const ws = wb.Sheets[sn];
+    const rows = XLSX.utils.sheet_to_json(ws, {defval:null, raw:true});
+    for(const row of rows){
+      const rec = {};
+      for(const key in row){
+        const raw = normHeader(key);
+        const nk = HEADER_RENAME[raw] || raw;
+        if(!headerMap[nk]) headerMap[nk] = raw;
+        rec[nk] = row[key];
+      }
+      rec.Plant = sn;
+      records.push(rec);
+    }
+  }
+  // Plant isn't a literal spreadsheet column — each report tab (worksheet) IS
+  // the plant, so label it for what it actually is in the uploaded workbook.
+  headerMap.Plant = 'Plant (worksheet/tab name)';
+  COLUMN_HEADERS = headerMap;
+  return records;
+}
+
+function computeDashboardData(records, fileName){
+  // FIX (v2.1.4): only rows with a real Vehicle No are dispatches. Cancelled
+  // GC entries (Remarks = "GC Cancel") keep their Sl No / GC No / Shipment
+  // Date but have a blank Vehicle No, Inv Wt 0/blank and Trips 0. Earlier
+  // versions counted them as loaded vehicles (every "Vehicle No — Count"
+  // chart, e.g. Sep-2026 showed 6,348 instead of 6,347) and as "Pending"
+  // billing records. Drop them once here so every report is consistent with
+  // meta.totalVehicles and with a COUNT(Vehicle No) in Excel / Power BI.
+  records = records.filter(r=>{ const v=r['Vehicle No']; return v!=null && String(v).trim()!==''; });
+  const CANON_COLS = ['Destination','Short Party','Veh Type','Local/Long','Short Product','SpclOrd','Firm','Plant','Owner'];
+  for(const c of CANON_COLS) canonicalizeColumn(records, c);
+  // NOTE: Toranagallu (JSW Steel's Vijayanagar Works) is a real, high-volume
+  // shipping destination for this fleet, not an internal/loopback location —
+  // it must NOT be excluded. (A previous version of this dashboard filtered
+  // it out here, which silently dropped ~656,511 MT from HSM-03 PPD alone and
+  // removed the BMM ISPATH (BILLETS) sheet entirely, since 100% of its rows
+  // ship to Toranagallu.)
+  records.forEach(r=>{
+    if(r['Veh Type']){ const m = /^(\d+)\s*wheeler$/i.exec(r['Veh Type']); if(m) r['Veh Type'] = m[1]+' Wheeler'; }
+    if(r['Local/Long']){ const s=r['Local/Long']; r['Local/Long'] = s.charAt(0).toUpperCase()+s.slice(1).toLowerCase(); }
+    r.Billed = typeof r.Billings==='string' && r.Billings.trim().toUpperCase().startsWith('BILLED');
+    r.InvWt = toNum(r['Inv Wt']);
+    r.GrossWt = toNum(r['Gross Wt']);
+    r.Variance = (isFinite(r.GrossWt)&&isFinite(r.InvWt)) ? (r.GrossWt-r.InvWt) : NaN;
+    r._ShipDate = toDate(r['Shipment Date']);
+    r.ShipYM = r._ShipDate ? ymKey(r._ShipDate) : null;
+    const ld = toDate(r['LoadingReadyDate']);
+    const bd = toDate(r['BillDate']);
+    if(ld && bd){
+      const days = Math.round((bd-ld)/86400000);
+      r.TurnaroundDays = (days>=0 && days<=120) ? days : NaN;
+    } else r.TurnaroundDays = NaN;
+  });
+
+  const plants = Array.from(new Set(records.map(r=>r.Plant).filter(Boolean))).sort();
+  const totalTonnage = records.reduce((a,r)=> a+(isFinite(r.InvWt)?r.InvWt:0), 0);
+  const totalVehicles = records.filter(r=>r['Vehicle No']!=null && r['Vehicle No']!=='').length;
+  const shipDates = records.map(r=>r._ShipDate).filter(Boolean);
+  const dateMinD = shipDates.length? new Date(Math.min(...shipDates)) : null;
+  const dateMaxD = shipDates.length? new Date(Math.max(...shipDates)) : null;
+
+  const out = { meta:{
+    totalRecords: records.length,
+    totalTonnage: round(totalTonnage,1),
+    totalVehicles,
+    avgLoad: totalVehicles? round(totalTonnage/totalVehicles,2) : 0,
+    dateMin: dateMinD? isoDate(dateMinD) : '—',
+    dateMax: dateMaxD? isoDate(dateMaxD) : '—',
+    fyLabel: fyLabel(dateMaxD),
+    plants,
+    destinations: new Set(records.map(r=>r.Destination).filter(Boolean)).size,
+    customers: new Set(records.map(r=>r['Short Party']).filter(Boolean)).size,
+    transporters: new Set(records.map(r=>r.Owner).filter(Boolean)).size,
+    fileName, sourceRows: records.length
+  }};
+
+  // R1 plant
+  {
+    const g = groupSumCount(records,'Plant','InvWt');
+    const arr = plants.map(p=>({p, s:g.get(p)||{sum:0,count:0}})).sort((a,b)=>b.s.sum-a.s.sum);
+    out.r1_plant = {
+      labels: arr.map(x=>x.p),
+      tonnage: arr.map(x=>round(x.s.sum,1)),
+      vehicles: arr.map(x=>x.s.count),
+      avgLoad: arr.map(x=> x.s.count? round(x.s.sum/x.s.count,2) : 0)
+    };
+  }
+
+  // R2 monthly trend (last up to 14 months present in the data)
+  const allYM = Array.from(new Set(records.map(r=>r.ShipYM).filter(Boolean))).sort();
+  const months = allYM.slice(-14);
+  const monthSet = new Set(months);
+  {
+    const bm = new Map();
+    for(const r of records){ if(!r.ShipYM||!monthSet.has(r.ShipYM)) continue; if(!bm.has(r.ShipYM)) bm.set(r.ShipYM,{sum:0,count:0}); const b=bm.get(r.ShipYM); if(isFinite(r.InvWt)) b.sum+=r.InvWt; b.count++; }
+    const byPlant = {};
+    for(const p of plants){
+      const pm = new Map();
+      for(const r of records){ if(r.Plant!==p || !r.ShipYM || !monthSet.has(r.ShipYM)) continue; pm.set(r.ShipYM,(pm.get(r.ShipYM)||0)+(isFinite(r.InvWt)?r.InvWt:0)); }
+      byPlant[p] = months.map(m=>round(pm.get(m)||0,1));
+    }
+    out.r2_trend = {
+      months,
+      tonnage: months.map(m=>round((bm.get(m)||{sum:0}).sum,1)),
+      vehicles: months.map(m=>(bm.get(m)||{count:0}).count),
+      byPlant,
+      tonnageByPlant: plantBreakdown(records, r=>r.ShipYM, r=>r.InvWt, months, plants, 1),
+      vehiclesByPlant: plantBreakdown(records, r=>r.ShipYM, ()=>1, months, plants, 0)
+    };
+  }
+
+  // R3 destinations
+  { const g = groupSumCount(records,'Destination','InvWt'); const top = topSorted(g,25);
+    const destLabels = top.map(x=>x.k);
+    out.r3_destination = { labels:destLabels, tonnage:top.map(x=>round(x.tonnage,1)), vehicles:top.map(x=>x.vehicles),
+      tonnageByPlant: plantBreakdown(records, r=>r.Destination, r=>r.InvWt, destLabels, plants, 1),
+      vehiclesByPlant: plantBreakdown(records, r=>r.Destination, ()=>1, destLabels, plants, 0)
+    }; }
+
+  // R4 product
+  { const g = groupSumCount(records,'Short Product','InvWt'); const top = topSorted(g,25);
+    const gw = new Map();
+    for(const r of records){
+      const key = r['Short Product'];
+      if(!key || !isFinite(r.GrossWt)) continue;
+      if(!gw.has(key)) gw.set(key, {sum:0, count:0});
+      const e = gw.get(key); e.sum += r.GrossWt; e.count++;
+    }
+    const avgGrossWeight = top.map(x=>{ const e = gw.get(x.k); return e && e.count ? round(e.sum/e.count,2) : 0; });
+    const prodLabels = top.map(x=>x.k);
+    out.r4_product = { labels:prodLabels, tonnage:top.map(x=>round(x.tonnage,1)), vehicles:top.map(x=>x.vehicles), avgGrossWeight,
+      tonnageByPlant: plantBreakdown(records, r=>r['Short Product'], r=>r.InvWt, prodLabels, plants, 1),
+      vehiclesByPlant: plantBreakdown(records, r=>r['Short Product'], ()=>1, prodLabels, plants, 0)
+    }; }
+
+  // R5 transporter
+  {
+    const gf = groupSumCount(records,'Firm','InvWt');
+    const firms = Array.from(gf.entries()).sort((a,b)=>b[1].sum-a[1].sum);
+    const go = groupSumCount(records,'Owner','InvWt');
+    const topO = topSorted(go,25);
+    const ownerNames = topO.map(x=>x.k);
+    const ownerMonthMap = new Map();
+    for(const r of records){
+      if(!r.Owner || !r.ShipYM || !ownerNames.includes(r.Owner)) continue;
+      if(!ownerMonthMap.has(r.Owner)) ownerMonthMap.set(r.Owner,new Map());
+      const mm = ownerMonthMap.get(r.Owner);
+      mm.set(r.ShipYM,(mm.get(r.ShipYM)||0)+(isFinite(r.InvWt)?r.InvWt:0));
+    }
+    const ownerMonths = allYM.slice();
+    const ownerMonthly = ownerNames.map(name=>({
+      name,
+      values: ownerMonths.map(m=>round((ownerMonthMap.get(name)||new Map()).get(m)||0,1))
+    }));
+    const firmLabels = firms.map(([k])=>k);
+    out.r5_transporter = {
+      firmSplit: { labels:firmLabels, tonnage:firms.map(([,v])=>round(v.sum,1)), vehicles:firms.map(([,v])=>v.count),
+        tonnageByPlant: plantBreakdown(records, r=>r.Firm, r=>r.InvWt, firmLabels, plants, 1) },
+      topOwners: { labels:ownerNames, tonnage:topO.map(x=>round(x.tonnage,1)), vehicles:topO.map(x=>x.vehicles),
+        tonnageByPlant: plantBreakdown(records, r=>r.Owner, r=>r.InvWt, ownerNames, plants, 1) },
+      ownerMonthly: { months:ownerMonths, series:ownerMonthly }
+    };
+  }
+
+  // R6 vehicle type
+  {
+    const g = groupSumCount(records,'Veh Type','InvWt');
+    const arr = Array.from(g.entries()).map(([k,v])=>({k,sum:v.sum,count:v.count})).sort((a,b)=>b.count-a.count);
+    const vehTypeLabels = arr.map(x=>x.k);
+    out.r6_vehtype = { labels:vehTypeLabels, vehicles:arr.map(x=>x.count), avgLoad:arr.map(x=>x.count?round(x.sum/x.count,2):0),
+      vehiclesByPlant: plantBreakdown(records, r=>r['Veh Type'], ()=>1, vehTypeLabels, plants, 0)
+    };
+  }
+
+  // R7 local/long
+  {
+    const g = groupSumCount(records,'Local/Long','InvWt');
+    const arr = Array.from(g.entries()).sort((a,b)=>b[1].sum-a[1].sum);
+    const byPlant = { labels:plants, local:[], long:[] };
+    for(const p of plants){
+      let local=0,long=0;
+      for(const r of records){ if(r.Plant!==p || !isFinite(r.InvWt)) continue; if(r['Local/Long']==='Local') local+=r.InvWt; else if(r['Local/Long']==='Long') long+=r.InvWt; }
+      byPlant.local.push(round(local,1)); byPlant.long.push(round(long,1));
+    }
+    const modeLabels = arr.map(([k])=>k);
+    out.r7_local_long = { split:{ labels:modeLabels, tonnage:arr.map(([,v])=>round(v.sum,1)), vehicles:arr.map(([,v])=>v.count),
+      tonnageByPlant: plantBreakdown(records, r=>r['Local/Long'], r=>r.InvWt, modeLabels, plants, 1) }, byPlant };
+  }
+
+  // R8 billing
+  {
+    const billed = records.filter(r=>r.Billed).length;
+    const pending = records.length - billed;
+    const avgT=[], pendC=[];
+    for(const p of plants){
+      const rs = records.filter(r=>r.Plant===p);
+      const finite = rs.map(r=>r.TurnaroundDays).filter(v=>isFinite(v));
+      avgT.push(finite.length? round(finite.reduce((a,b)=>a+b,0)/finite.length,1) : 0);
+      pendC.push(rs.filter(r=>!r.Billed).length);
+    }
+    const bm = new Map();
+    for(const r of records){ if(!r.ShipYM||!monthSet.has(r.ShipYM)||!isFinite(r.TurnaroundDays)) continue; if(!bm.has(r.ShipYM)) bm.set(r.ShipYM,{sum:0,count:0}); const b=bm.get(r.ShipYM); b.sum+=r.TurnaroundDays; b.count++; }
+    out.r8_billing = {
+      statusSplit: { labels:['Billed','Pending'], count:[billed,pending],
+        recordsByPlant: plantBreakdown(records, r=> r.Billed?'Billed':'Pending', ()=>1, ['Billed','Pending'], plants, 0) },
+      avgTurnaroundByPlant: { labels:plants, days:avgT },
+      pendingByPlant: { labels:plants, count:pendC },
+      turnaroundTrend: { months, days: months.map(m=>{ const b=bm.get(m); return b&&b.count? round(b.sum/b.count,1) : 0; }) }
+    };
+  }
+
+  // R9 customers
+  { const g = groupSumCount(records,'Short Party','InvWt'); const top = topSorted(g,25);
+    const custLabels = top.map(x=>x.k);
+    out.r9_customer = { labels:custLabels, tonnage:top.map(x=>round(x.tonnage,1)), vehicles:top.map(x=>x.vehicles),
+      tonnageByPlant: plantBreakdown(records, r=>r['Short Party'], r=>r.InvWt, custLabels, plants, 1),
+      vehiclesByPlant: plantBreakdown(records, r=>r['Short Party'], ()=>1, custLabels, plants, 0)
+    }; }
+
+  // R9b customer tonnage, month-wise (top 25 customers x every month present in the data)
+  {
+    const gc = groupSumCount(records,'Short Party','InvWt');
+    const topC = topSorted(gc,25);
+    const customerNames = topC.map(x=>x.k);
+    const customerMonthMap = new Map();
+    for(const r of records){
+      if(!r['Short Party'] || !r.ShipYM || !customerNames.includes(r['Short Party'])) continue;
+      if(!customerMonthMap.has(r['Short Party'])) customerMonthMap.set(r['Short Party'],new Map());
+      const mm = customerMonthMap.get(r['Short Party']);
+      mm.set(r.ShipYM,(mm.get(r.ShipYM)||0)+(isFinite(r.InvWt)?r.InvWt:0));
+    }
+    const customerMonths = allYM.slice();
+    const customerMonthly = customerNames.map(name=>({
+      name,
+      values: customerMonths.map(m=>round((customerMonthMap.get(name)||new Map()).get(m)||0,1))
+    }));
+    out.r9b_customer_monthly = { months:customerMonths, series:customerMonthly, totalTonnage:topC.map(x=>round(x.tonnage,1)) };
+  }
+
+  // R10 special orders & efficiency
+  {
+    const cc = new Map();
+    for(const r of records){ if(!r.SpclOrd) continue; cc.set(r.SpclOrd,(cc.get(r.SpclOrd)||0)+1); }
+    const splitArr = Array.from(cc.entries()).sort((a,b)=>b[1]-a[1]);
+    const varByPlant = plants.map(p=>{ const vs = records.filter(r=>r.Plant===p).map(r=>r.Variance).filter(v=>isFinite(v)); return vs.length? round(vs.reduce((a,b)=>a+b,0)/vs.length,3) : 0; });
+    const vtGroups = new Map();
+    for(const r of records){ if(!r['Veh Type']||!isFinite(r.Variance)) continue; if(!vtGroups.has(r['Veh Type'])) vtGroups.set(r['Veh Type'],[]); vtGroups.get(r['Veh Type']).push(r.Variance); }
+    const vtArr = Array.from(vtGroups.entries()).map(([k,vs])=>({k, avg: vs.length? vs.reduce((a,b)=>a+b,0)/vs.length : 0})).sort((a,b)=>b.avg-a.avg);
+    const orderTypeLabels = splitArr.map(([k])=>k);
+    out.r10_special = {
+      split: { labels:orderTypeLabels, count:splitArr.map(([,v])=>v),
+        recordsByPlant: plantBreakdown(records, r=>r.SpclOrd, ()=>1, orderTypeLabels, plants, 0) },
+      varianceByPlant: { labels:plants, avgVariance:varByPlant },
+      varianceByVehType: { labels:vtArr.map(x=>x.k), avgVariance:vtArr.map(x=>round(x.avg,3)) }
+    };
+  }
+
+  // R11 exceptional executive analytics
+  {
+    // 1) Dispatch momentum: monthly tonnage with month-over-month change
+    const momentum = months.map((m,i)=>{
+      const current = (out.r2_trend.tonnage[i] || 0);
+      const prev = i>0 ? (out.r2_trend.tonnage[i-1] || 0) : 0;
+      return i>0 && prev ? round((current-prev)/prev*100,1) : 0;
+    });
+
+    // 2) Plant performance index: equal-weight normalized tonnage, vehicles and avg load
+    const plantBase = plants.map(p=>{
+      const idx = out.r1_plant.labels.indexOf(p);
+      return {
+        plant:p,
+        tonnage: idx>=0 ? out.r1_plant.tonnage[idx] : 0,
+        vehicles: idx>=0 ? out.r1_plant.vehicles[idx] : 0,
+        avgLoad: idx>=0 ? out.r1_plant.avgLoad[idx] : 0
+      };
+    });
+    const maxT = Math.max(...plantBase.map(x=>x.tonnage),0);
+    const maxV = Math.max(...plantBase.map(x=>x.vehicles),0);
+    const maxA = Math.max(...plantBase.map(x=>x.avgLoad),0);
+    const plantIndex = plantBase.map(x=>round(
+      ((maxT?x.tonnage/maxT:0)+(maxV?x.vehicles/maxV:0)+(maxA?x.avgLoad/maxA:0))/3*100,1
+    ));
+
+    // 3) Vehicle-type weight relationship: average invoice vs average gross weight
+    const vg = new Map();
+    for(const r of records){
+      const vt = r['Veh Type'];
+      if(!vt || !isFinite(r.InvWt) || !isFinite(r.GrossWt)) continue;
+      if(!vg.has(vt)) vg.set(vt,{inv:0,gross:0,count:0,varSum:0});
+      const x=vg.get(vt);
+      x.inv += r.InvWt; x.gross += r.GrossWt; x.count++; x.varSum += (r.GrossWt-r.InvWt);
+    }
+    const vehicleWeight = Array.from(vg.entries()).map(([k,v])=>({
+      name:k,
+      invoice:round(v.inv/v.count,2),
+      gross:round(v.gross/v.count,2),
+      variance:round(v.varSum/v.count,2),
+      count:v.count
+    })).sort((a,b)=>b.count-a.count);
+
+    out.r11_exceptional = {
+      momentum:{months, tonnage:out.r2_trend.tonnage, momPct:momentum, tonnageByPlant: out.r2_trend.tonnageByPlant},
+      plantIndex:{labels:plants, score:plantIndex},
+      vehicleWeight
+    };
+  }
+
+  // R12 BT vs OST vehicle ownership table
+  // BT = Balaji Transports; OST = attached / other vehicles used for transport.
+  {
+    const ownership = new Map([
+      ['BT', {label:'BT — Balaji Transports', records:0, tonnage:0, vehicles:new Set(), owners:new Set()}],
+      ['OST', {label:'OST — Attached / Other Vehicles', records:0, tonnage:0, vehicles:new Set(), owners:new Set()}]
+    ]);
+    // Per (firm, plant) tallies — feeds the BT/OST Summary table's per-plant
+    // Records/Tonnage/Vehicles/Owners columns.
+    const ownershipByPlant = new Map([['BT', new Map()], ['OST', new Map()]]);
+    const byVehicle = new Map();
+    for(const r of records){
+      const firm = String(r.Firm || '').trim().toUpperCase();
+      if(firm !== 'BT' && firm !== 'OST') continue;
+      const o = ownership.get(firm);
+      o.records++;
+      if(isFinite(r.InvWt)) o.tonnage += Number(r.InvWt);
+      const vehicleNo = String(r['Vehicle No'] || '').trim();
+      if(vehicleNo) o.vehicles.add(vehicleNo);
+      if(r.Owner != null && String(r.Owner).trim() !== '') o.owners.add(String(r.Owner).trim());
+
+      const fpm = ownershipByPlant.get(firm);
+      if(!fpm.has(r.Plant)) fpm.set(r.Plant, {records:0, tonnage:0, vehicles:new Set(), owners:new Set()});
+      const fg = fpm.get(r.Plant);
+      fg.records++;
+      if(isFinite(r.InvWt)) fg.tonnage += Number(r.InvWt);
+      if(vehicleNo) fg.vehicles.add(vehicleNo);
+      if(r.Owner != null && String(r.Owner).trim() !== '') fg.owners.add(String(r.Owner).trim());
+
+      if(firm === 'OST' && vehicleNo){
+        if(!byVehicle.has(vehicleNo)) byVehicle.set(vehicleNo,{vehicle:vehicleNo,owner:new Set(),type:new Set(),dispatches:0,tonnage:0,destinations:new Set(),byPlant:new Map()});
+        const v=byVehicle.get(vehicleNo);
+        v.dispatches++;
+        if(isFinite(r.InvWt)) v.tonnage += Number(r.InvWt);
+        if(r.Owner) v.owner.add(String(r.Owner).trim());
+        if(r['Veh Type']) v.type.add(String(r['Veh Type']).trim());
+        if(r.Destination) v.destinations.add(String(r.Destination).trim());
+        if(!v.byPlant.has(r.Plant)) v.byPlant.set(r.Plant, {dispatches:0, tonnage:0});
+        const vp = v.byPlant.get(r.Plant);
+        vp.dispatches++;
+        if(isFinite(r.InvWt)) vp.tonnage += Number(r.InvWt);
+      }
+    }
+    const summary=['BT','OST'].map(k=>{
+      const o=ownership.get(k);
+      const fpm = ownershipByPlant.get(k);
+      const byPlant = plants.map(p=>{
+        const g = fpm.get(p) || {records:0, tonnage:0, vehicles:new Set(), owners:new Set()};
+        return {plant:p, records:g.records, tonnage:round(g.tonnage,1), vehicles:g.vehicles.size, owners:g.owners.size};
+      });
+      return {code:k,label:o.label,records:o.records,tonnage:round(o.tonnage,1),vehicles:o.vehicles.size,owners:o.owners.size,byPlant};
+    });
+    const totalRecords=summary.reduce((a,x)=>a+x.records,0);
+    const totalTonnage=summary.reduce((a,x)=>a+x.tonnage,0);
+    const ostVehicles=Array.from(byVehicle.values()).map(v=>({
+      vehicle:v.vehicle, owner:Array.from(v.owner).join(', ')||'—', type:Array.from(v.type).join(', ')||'—',
+      dispatches:v.dispatches, tonnage:round(v.tonnage,1), avgLoad:v.dispatches?round(v.tonnage/v.dispatches,2):0,
+      destinations:Array.from(v.destinations).join(', ')||'—',
+      byPlant: plants.map(p=>{ const g=v.byPlant.get(p)||{dispatches:0,tonnage:0}; return {plant:p, dispatches:g.dispatches, tonnage:round(g.tonnage,1)}; })
+    })).sort((a,b)=>b.tonnage-a.tonnage);
+    out.r12_bt_ost={summary,totalRecords,totalTonnage:round(totalTonnage,1),ostVehicles};
+  }
+
+  // R12b BT vs OST, month-wise — one row of loadings/tonnage per calendar
+  // month present in the data, plus OST's share of loadings for that month.
+  // Mirrors the ownerMonthly / customerMonthly pattern above (allYM, not the
+  // last-14-months-only `months` used by R2), since BT/OST is just two
+  // series and every month on record is worth keeping.
+  {
+    const monthsList = allYM.slice();
+    const btByMonth = new Map(), ostByMonth = new Map(); // ShipYM -> {records,tonnage}
+    for(const r of records){
+      const firm = String(r.Firm || '').trim().toUpperCase();
+      if((firm!=='BT' && firm!=='OST') || !r.ShipYM) continue;
+      const map = firm==='BT' ? btByMonth : ostByMonth;
+      if(!map.has(r.ShipYM)) map.set(r.ShipYM, {records:0, tonnage:0});
+      const g = map.get(r.ShipYM);
+      g.records++;
+      if(isFinite(r.InvWt)) g.tonnage += r.InvWt;
+    }
+    const btRecords = monthsList.map(m=>(btByMonth.get(m)||{records:0}).records);
+    const ostRecords = monthsList.map(m=>(ostByMonth.get(m)||{records:0}).records);
+    const btTonnage = monthsList.map(m=>round((btByMonth.get(m)||{tonnage:0}).tonnage,1));
+    const ostTonnage = monthsList.map(m=>round((ostByMonth.get(m)||{tonnage:0}).tonnage,1));
+    const ostPct = monthsList.map((m,i)=>{ const tot=btRecords[i]+ostRecords[i]; return tot? round(ostRecords[i]/tot*100,1) : 0; });
+    const totalBtRecords = btRecords.reduce((a,b)=>a+b,0);
+    const totalOstRecords = ostRecords.reduce((a,b)=>a+b,0);
+    const totalOstPct = (totalBtRecords+totalOstRecords) ? round(totalOstRecords/(totalBtRecords+totalOstRecords)*100,1) : 0;
+    const latestIdx = monthsList.length-1;
+    out.r12b_bt_ost_monthly = {
+      months: monthsList,
+      btRecords, ostRecords, btTonnage, ostTonnage, ostPct,
+      totalBtRecords, totalOstRecords, totalOstPct,
+      latestMonth: latestIdx>=0 ? monthsList[latestIdx] : '—',
+      latestOstPct: latestIdx>=0 ? ostPct[latestIdx] : 0,
+      ostTargetPct: 10 // business target: OST should stay under 10% of loadings
+    };
+  }
+
+  out.records = records;
+  return out;
+}
+
+/* ---------------- shell reveal / meta wiring ---------------- */
+function applyMetaToShell(){
+  // Rail-foot always reflects the full (unfiltered) upload, so cancelling a
+  // plant or narrowing dates never changes "what file is this / how many
+  // rows total" — only the topbar's date range and the reports themselves
+  // move with the active filters.
+  const fm = FULL_DATA ? FULL_DATA.meta : DATA.meta;
+  document.getElementById('railFy').textContent = fm.fyLabel;
+  document.getElementById('railSourceFile').textContent = fm.fileName || 'Uploaded workbook';
+  document.getElementById('railSourceMeta').textContent =
+    fm.plants.length + (fm.plants.length===1?' sheet':' sheets') + ' · ' +
+    fmtNum(fm.sourceRows) + ' rows · through ' + fm.dateMax;
+  topbarMetaEl.textContent = DATA.meta.dateMin + ' → ' + DATA.meta.dateMax;
+}
+function updateTopbarHeight(){
+  const tb = document.querySelector('.topbar');
+  if(tb) document.documentElement.style.setProperty('--topbar-h', tb.offsetHeight+'px');
+}
+window.addEventListener('resize', updateTopbarHeight);
+
+function showApp(){
+  document.getElementById('appShell').classList.add('ready');
+  document.getElementById('uploadScreen').style.display = 'none';
+  document.getElementById('boot-loader').style.display = 'none';
+  updateTopbarHeight();
+  applyMetaToShell();
+  renderFilterBar();
+  currentId = null;
+  selectReport('plant', false);
+}
+
+/* =========================================================
+   FILTER BAR — date range + plant cancel/refresh
+   Both filters re-run computeDashboardData() on a subset of
+   BASE_RECORDS (the enriched record list, all destinations included,
+   kept in memory from the current upload) so every report and
+   every KPI, everywhere in the dashboard, stays consistent.
+   ========================================================= */
+const filterBarEl = document.getElementById('filterBar');
+let calPop = null;
+let calOpenFor = null;   // 'start' | 'end' | null
+let calViewMonth = null; // Date, first-of-month currently shown in the popover
+
+function applyFilters(){
+  if(!BASE_RECORDS || !FULL_DATA) return;
+  const hasDateFilter = dateRange && dateRange.start && dateRange.end;
+  const isFullRange = !hasDateFilter || (dateRange.start===FULL_DATA.meta.dateMin && dateRange.end===FULL_DATA.meta.dateMax);
+  const subset = BASE_RECORDS.filter(r=>{
+    if(isFullRange) return true;
+    if(!r._ShipDate) return false;
+    const iso = isoDate(r._ShipDate);
+    return iso>=dateRange.start && iso<=dateRange.end;
+  });
+  DATA = computeDashboardData(subset, FULL_DATA.meta.fileName);
+  applyMetaToShell();
+  renderFilterBar();
+  rerenderForTheme(); // re-renders whichever report is currently open against the new DATA
+}
+
+function renderFilterBar(){
+  filterBarEl.innerHTML = '';
+
+  // When the dashboard is restored from localStorage, only the aggregated
+  // report data is available. The raw workbook records are intentionally not
+  // cached, so the date picker MUST remain disabled until the user uploads
+  // the workbook again. This keeps the dashboard immediately usable while
+  // preventing a date filter from pretending it can filter unavailable rows.
+  if(!BASE_RECORDS || !FULL_DATA){
+    closeCalendar();
+
+    if(DATA && DATA.meta){
+      filterBarEl.classList.add('show');
+
+      const dateField = el('div');
+      dateField.appendChild(el('span','filt-label','Date Range'));
+
+      const range = el('div','date-range');
+
+      const startWrap = el('div','date-field');
+      startWrap.appendChild(el('span','filt-label','Start Date'));
+      const startBtn = el('button','date-box','Upload workbook');
+      startBtn.type = 'button';
+      startBtn.disabled = true;
+      startBtn.setAttribute('aria-disabled','true');
+      startWrap.appendChild(startBtn);
+      range.appendChild(startWrap);
+
+      const arrow = el('span', null, '&rarr;');
+      arrow.style.cssText = 'align-self:center; color:var(--text-muted); font-size:12px; padding-bottom:6px;';
+      range.appendChild(arrow);
+
+      const endWrap = el('div','date-field');
+      endWrap.appendChild(el('span','filt-label','End Date'));
+      const endBtn = el('button','date-box','Required');
+      endBtn.type = 'button';
+      endBtn.disabled = true;
+      endBtn.setAttribute('aria-disabled','true');
+      endWrap.appendChild(endBtn);
+      range.appendChild(endWrap);
+
+      dateField.appendChild(range);
+      filterBarEl.appendChild(dateField);
+
+      const note = el('span', null, 'Upload New File to enable date filtering');
+      note.style.cssText = 'align-self:flex-end; padding-bottom:7px; color:var(--text-muted); font-size:11.5px; font-family:var(--font-mono);';
+      filterBarEl.appendChild(note);
+    }else{
+      filterBarEl.classList.remove('show');
+    }
+    return;
+  }
+
+  filterBarEl.classList.add('show');
+
+  // Date range
+  const dateField = el('div');
+  dateField.appendChild(el('span','filt-label','Date Range'));
+  const range = el('div','date-range');
+
+  const startWrap = el('div','date-field');
+  startWrap.appendChild(el('span','filt-label','Start Date'));
+  const startBtn = el('button','date-box', esc(displayDate(dateRange && dateRange.start)));
+  startBtn.type = 'button';
+  startBtn.addEventListener('click', (e)=>{ e.stopPropagation(); openCalendar('start', startBtn); });
+  startWrap.appendChild(startBtn);
+  range.appendChild(startWrap);
+
+  const arrow = el('span', null, '&rarr;');
+  arrow.style.cssText = 'align-self:center; color:var(--text-muted); font-size:12px; padding-bottom:6px;';
+  range.appendChild(arrow);
+
+  const endWrap = el('div','date-field');
+  endWrap.appendChild(el('span','filt-label','End Date'));
+  const endBtn = el('button','date-box', esc(displayDate(dateRange && dateRange.end)));
+  endBtn.type = 'button';
+  endBtn.addEventListener('click', (e)=>{ e.stopPropagation(); openCalendar('end', endBtn); });
+  endWrap.appendChild(endBtn);
+  range.appendChild(endWrap);
+
+  const isNarrowed = dateRange && (dateRange.start!==FULL_DATA.meta.dateMin || dateRange.end!==FULL_DATA.meta.dateMax);
+  if(isNarrowed){
+    const resetBtn = el('button','date-reset','Reset dates');
+    resetBtn.type = 'button';
+    resetBtn.addEventListener('click', ()=>{
+      dateRange = { start:FULL_DATA.meta.dateMin, end:FULL_DATA.meta.dateMax };
+      closeCalendar();
+      applyFilters();
+    });
+    range.appendChild(resetBtn);
+  }
+  dateField.appendChild(range);
+  filterBarEl.appendChild(dateField);
+}
+
+function ensureCalPop(){
+  if(calPop) return calPop;
+  calPop = el('div','cal-pop');
+  document.body.appendChild(calPop);
+  document.addEventListener('click', (e)=>{ if(calOpenFor && !calPop.contains(e.target)) closeCalendar(); });
+  window.addEventListener('resize', closeCalendar);
+  window.addEventListener('scroll', closeCalendar, true);
+  return calPop;
+}
+function closeCalendar(){
+  calOpenFor = null;
+  if(calPop) calPop.classList.remove('show');
+}
+function openCalendar(which, anchorEl){
+  const pop = ensureCalPop();
+  if(calOpenFor===which){ closeCalendar(); return; }
+  calOpenFor = which;
+  const iso = which==='start' ? (dateRange && dateRange.start) : (dateRange && dateRange.end);
+  calViewMonth = iso ? startOfMonth(fromISO(iso)) : startOfMonth(fromISO(FULL_DATA.meta.dateMax));
+  renderCalendar();
+  pop.classList.add('show');
+  const rect = anchorEl.getBoundingClientRect();
+  const popW = 236;
+  let left = rect.left;
+  if(left+popW > window.innerWidth-8) left = window.innerWidth-popW-8;
+  pop.style.left = Math.max(8,left)+'px';
+  pop.style.top = (rect.bottom+6)+'px';
+}
+function renderCalendar(){
+  if(!calPop) return;
+  calPop.innerHTML = '';
+  const minMonth = startOfMonth(fromISO(FULL_DATA.meta.dateMin));
+  const maxMonth = startOfMonth(fromISO(FULL_DATA.meta.dateMax));
+
+  const head = el('div','cal-head');
+  const prevBtn = el('button', null, '&lsaquo;'); prevBtn.type='button';
+  const label = el('span', null, esc(monthLabel(calViewMonth)));
+  const nextBtn = el('button', null, '&rsaquo;'); nextBtn.type='button';
+  prevBtn.disabled = calViewMonth <= minMonth;
+  nextBtn.disabled = calViewMonth >= maxMonth;
+  prevBtn.addEventListener('click', (e)=>{ e.stopPropagation(); calViewMonth = addMonths(calViewMonth,-1); renderCalendar(); });
+  nextBtn.addEventListener('click', (e)=>{ e.stopPropagation(); calViewMonth = addMonths(calViewMonth,1); renderCalendar(); });
+  head.append(prevBtn, label, nextBtn);
+  calPop.appendChild(head);
+
+  const wk = el('div','cal-weekdays');
+  WEEKDAY_LABELS.forEach(w=> wk.appendChild(el('span', null, w)));
+  calPop.appendChild(wk);
+
+  const grid = el('div','cal-grid');
+  const selIso = calOpenFor==='start' ? (dateRange && dateRange.start) : (dateRange && dateRange.end);
+  monthCells(calViewMonth).forEach(d=>{
+    if(!d){ grid.appendChild(el('button','cal-cell cal-blank')); return; }
+    const iso = isoDate(d);
+    const btn = el('button','cal-cell', String(d.getDate()));
+    btn.type = 'button';
+    const enabled = availableDates && availableDates.has(iso);
+    btn.disabled = !enabled;
+    if(iso===selIso) btn.classList.add('sel');
+    if(enabled) btn.addEventListener('click', (e)=>{ e.stopPropagation(); pickDate(iso); });
+    grid.appendChild(btn);
+  });
+  calPop.appendChild(grid);
+}
+function pickDate(iso){
+  let start = dateRange ? dateRange.start : FULL_DATA.meta.dateMin;
+  let end = dateRange ? dateRange.end : FULL_DATA.meta.dateMax;
+  if(calOpenFor==='start'){ start = iso; if(end && iso>end) end = iso; }
+  else { end = iso; if(start && iso<start) start = iso; }
+  dateRange = { start, end };
+  closeCalendar();
+  applyFilters();
+}
+function showUploadScreen(errorMsg){
+  document.getElementById('boot-loader').style.display = 'none';
+  document.getElementById('appShell').classList.remove('ready');
+  const us = document.getElementById('uploadScreen');
+  us.style.display = 'flex';
+  const err = document.getElementById('uploadError');
+  if(errorMsg){ err.innerHTML = '<b>Could not read that file.</b><br>'+errorMsg; err.classList.add('show'); }
+  else { err.classList.remove('show'); err.innerHTML=''; }
+}
+function showBootLoader(label){
+  document.getElementById('uploadScreen').style.display = 'none';
+  const bl = document.getElementById('boot-loader');
+  bl.style.display = 'flex'; bl.style.opacity = '1';
+  document.getElementById('bootLabel').innerHTML = label;
+}
+const wait = (ms)=> new Promise(res=>setTimeout(res,ms));
+
+async function handleFile(file){
+  if(!file) return;
+  showBootLoader('Reading <b>'+esc(file.name)+'</b>&hellip;');
+  await wait(300);
+  try{
+    const records = await parseWorkbookFile(file);
+    if(!records.length) throw new Error('The workbook has no data rows.');
+    const sheetCount = new Set(records.map(r=>r.Plant)).size;
+    showBootLoader('Normalizing '+sheetCount+' sheet'+(sheetCount===1?'':'s')+'&hellip;');
+    await wait(280);
+    const requiredCols = ['Vehicle No','Inv Wt','Shipment Date'];
+    const sample = records[0];
+    const missing = requiredCols.filter(c=> !(c in sample));
+    if(missing.length){ throw new Error('Expected columns like <code>'+missing.join('</code>, <code>')+'</code> were not found. Make sure this is a Loading Report export.'); }
+    showBootLoader('Aggregating '+fmtNum(records.length)+' dispatch records&hellip;');
+    await wait(320);
+
+    // Capture the true workbook date range BEFORE computeDashboardData()
+    // applies any report-specific exclusions. The date filter must reflect
+    // the first/last Shipment Date actually present in Excel.
+    const workbookDateBounds = computeWorkbookDateBounds(records);
+    const workbookAvailableDates = computeAvailableDates(records);
+
+    const result = computeDashboardData(records, file.name);
+
+    // Keep the report data exactly as before, but make the date filter's
+    // boundaries come from the original Excel workbook.
+    if(workbookDateBounds.min) result.meta.dateMin = workbookDateBounds.min;
+    if(workbookDateBounds.max) result.meta.dateMax = workbookDateBounds.max;
+
+    DATA = result;
+    FULL_DATA = result;
+    BASE_RECORDS = result.records;
+    availableDates = workbookAvailableDates;
+    dateRange = {
+      start: workbookDateBounds.min,
+      end: workbookDateBounds.max
+    };
+    try{
+      // Cache only the aggregate, never the raw record list (tens of MB for a
+      // real workbook — well past what localStorage can hold).
+      const { records: _omit, ...cacheable } = result;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({data:cacheable, fileName:file.name, savedAt:Date.now()}));
+    }catch(e){}
+    showApp();
+  }catch(err){
+    console.error(err);
+    showUploadScreen(err && err.message ? err.message : 'Unexpected file format.');
+  }
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ---------------- upload screen wiring ---------------- */
+const fileInput = document.getElementById('fileInput');
+const dropzone = document.getElementById('dropzone');
+document.getElementById('browseBtn').addEventListener('click', ()=> fileInput.click());
+dropzone.addEventListener('click', ()=> fileInput.click());
+dropzone.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fileInput.click(); } });
+fileInput.addEventListener('change', (e)=>{ const f = e.target.files && e.target.files[0]; if(f) handleFile(f); });
+['dragenter','dragover'].forEach(evt=> dropzone.addEventListener(evt, (e)=>{ e.preventDefault(); dropzone.classList.add('drag'); }));
+['dragleave','drop'].forEach(evt=> dropzone.addEventListener(evt, (e)=>{ e.preventDefault(); dropzone.classList.remove('drag'); }));
+dropzone.addEventListener('drop', (e)=>{ const f = e.dataTransfer.files && e.dataTransfer.files[0]; if(f) handleFile(f); });
+
+document.getElementById('changeFileBtn').addEventListener('click', ()=>{
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  DATA = null;
+  FULL_DATA = null;
+  BASE_RECORDS = null;
+  dateRange = null;
+  availableDates = null;
+  closeCalendar();
+  filterBarEl.innerHTML = '';
+  filterBarEl.classList.remove('show');
+  fileInput.value = '';
+  document.getElementById('appShell').classList.remove('ready');
+  closeRailOnMobile();
+  showUploadScreen();
+});
+
+/* ---------------- boot sequence ---------------- */
+function boot(){
+  // Always require a fresh workbook upload on every page open.
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  DATA = null; FULL_DATA = null; BASE_RECORDS = null;
+  dateRange = null; availableDates = null;
+  showUploadScreen();
+}
+try{ boot(); }catch(e){ console.error(e); showUploadScreen('Something went wrong starting the dashboard. Please try uploading your workbook.'); }
+
+// Last-resort safety net: if NOTHING is visible a few seconds after startup
+// (e.g. a CDN script failed to load before boot() even ran), don't leave a
+// blank page. A workbook still being processed keeps the boot-loader visible,
+// so that counts as "fine" here — this only catches a true blank-page start.
+setTimeout(()=>{
+  const appVisible = document.getElementById('appShell').classList.contains('ready');
+  const uploadVisible = document.getElementById('uploadScreen').style.display !== 'none';
+  const bootVisible = document.getElementById('boot-loader').style.display !== 'none';
+  if(!appVisible && !uploadVisible && !bootVisible){
+    showUploadScreen('The dashboard had trouble starting. Please refresh the page and try again.');
+  }
+}, 4000);
+})();
+</script>
+
+<style>
+/* Final override: large red X controls */
+.chart-body .chart-legend .p-chip{
+  min-width:38px !important;
+  min-height:38px !important;
+  height:38px !important;
+  padding:6px 10px !important;
+  border:2px solid #dc2626 !important;
+  color:#991b1b !important;
+  background:#fff !important;
+}
+.chart-body .chart-legend .p-chip .x{
+  color:#dc2626 !important;
+  font-size:24px !important;
+  font-weight:800 !important;
+}
+.chart-body .chart-legend .p-chip.off{
+  background:#fee2e2 !important;
+  border-color:#dc2626 !important;
+}
+.chart-body .chart-legend .p-chip.off .x{
+  color:#16a34a !important;
+  font-size:22px !important;
+}
+</style>
