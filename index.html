@@ -1493,9 +1493,9 @@ const productDetail = (recs, scopeLabel) => {
   const tw = sumWt(recs); const g = [...aggregate(recs, r => r.product).values()].sort(byWtDesc);
   const plants = plantList(recs); const multi = plants.length > 1; const pm = g.map(p => byPlant(p.recs));
   return { title: `Short Products in ${scopeLabel}` + (multi ? ' — with plant-wise trips and MT' : ''),
-    columns: [{ label: 'Short Product', type: 'text' }, { label: 'Inv Wt (MT)', type: 'wt' }, { label: 'Trips', type: 'int' }, { label: 'Share of Inv Wt', type: 'pct' }, { label: 'Avg MT / Trip', type: 'wt' },
+    columns: [{ label: 'Short Product', type: 'text' }, { label: 'Inv Wt (MT)', type: 'wt' }, { label: 'Trips', type: 'int' }, { label: 'Avg MT / Trip', type: 'wt' },
       ...(multi ? plants.flatMap(pl => [{ label: `${pl} — Trips`, type: 'int' }, { label: `${pl} — MT`, type: 'wt' }]) : [])],
-    rows: g.map((p, i) => [p.key, p.wt, p.trips, tw ? p.wt / tw * 100 : 0, p.wt / p.trips,
+    rows: g.map((p, i) => [p.key, p.wt, p.trips, p.wt / p.trips,
       ...(multi ? plants.flatMap(pl => [pm[i].get(pl)?.trips || 0, pm[i].get(pl)?.wt || 0]) : [])]) };
 };
 const fmtCell = (v, type) => v === '' ? '' : type === 'wt' ? fWt(v) : type === 'int' ? fInt(v) : type === 'pct' ? fPct(v) : (v ?? '');
@@ -1672,10 +1672,10 @@ function hbarCard(host, o) {
     const color = cssVar(o.measure === 'wt' ? '--wt' : '--trips');
     const h = Math.max(220, items.length * 30 + 70);
     slot.set(h, { type: 'bar', data: { labels: items.map(g => g.key), datasets: [{ label: o.measure === 'wt' ? 'Inv Wt (MT)' : 'Trips', data: items.map(g => g[o.measure]), backgroundColor: color, borderRadius: 4, barPercentage: 0.72, categoryPercentage: 0.9 }] }, options: opts });
-    const columns = [{ label: '#', type: 'int' }, { label: o.keyLabel || 'Short Product', type: 'text' }, { label: 'Inv Wt (MT)', type: 'wt' }, { label: 'Trips', type: 'int' }, { label: 'Share of Inv Wt', type: 'pct' }, { label: 'Share of trips', type: 'pct' }, { label: 'Avg MT / Trip', type: 'wt' }, { label: 'First date', type: 'text' }, { label: 'Last date', type: 'text' }, ...pCols];
-    const rows = items.map((g, i) => ({ cells: [i + 1, g.key, g.wt, g.trips, sw(g.wt), st(g.trips), g.wt / g.trips, fmtDate(g.min), fmtDate(g.max), ...pCells(pm[i])], sortVals: { 7: g.min, 8: g.max },
+    const columns = [{ label: '#', type: 'int' }, { label: o.keyLabel || 'Short Product', type: 'text' }, { label: 'Inv Wt (MT)', type: 'wt' }, { label: 'Trips', type: 'int' }, { label: 'Avg MT / Trip', type: 'wt' }, { label: 'First date', type: 'text' }, { label: 'Last date', type: 'text' }, ...pCols];
+    const rows = items.map((g, i) => ({ cells: [i + 1, g.key, g.wt, g.trips, g.wt / g.trips, fmtDate(g.min), fmtDate(g.max), ...pCells(pm[i])], sortVals: { 5: g.min, 6: g.max },
       detail: () => o.detail ? o.detail(g) : recordDetail(g.recs) }));
-    tbl.update({ columns, rows, total: ['', 'Total', tw, tt, sw(tw), st(tt), tt ? tw / tt : 0, '', '', ...pCells(pTot)], exportRecs: () => items.flatMap(g => g.recs) });
+    tbl.update({ columns, rows, total: ['', 'Total', tw, tt, tt ? tw / tt : 0, '', '', ...pCells(pTot)], exportRecs: () => items.flatMap(g => g.recs) });
   };
   draw();
 }
