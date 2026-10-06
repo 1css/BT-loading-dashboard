@@ -1,4 +1,10 @@
-<title>Loading Reports Dashboard</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Balaji Loading Reports</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -30,6 +36,10 @@
     --chart-muted:#898781;
     --good:#0ca30c;
     --warning:#c98500;
+    --surface-alt:#f6f7f9; --surface-hover:#f3f6fa;
+    --grid:#e6e5df; --danger:#dc2626; --wt:#2a78d6; --trips:#eb6834;
+    --series-1:#2a78d6; --series-2:#eb6834; --series-3:#1baf7a; --series-4:#eda100;
+    --series-5:#e87ba4; --series-6:#008300; --series-7:#4a3aa7; --series-8:#e34948; --other:#a3a29d;
 
     --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -53,6 +63,10 @@
       --chart-muted:#8992a0;
       --good:#0ca30c;
       --warning:#fab219;
+      --surface-alt:#1a1f28; --surface-hover:#1d2430;
+      --grid:#262b33; --danger:#f87171; --wt:#3987e5; --trips:#d95926;
+      --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70; --series-4:#c98500;
+      --series-5:#d55181; --series-6:#008300; --series-7:#9085e9; --series-8:#e66767; --other:#6b6a65;
     }
   }
   :root[data-theme="dark"]{
@@ -73,6 +87,10 @@
     --chart-muted:#8992a0;
     --good:#0ca30c;
     --warning:#fab219;
+    --surface-alt:#1a1f28; --surface-hover:#1d2430;
+    --grid:#262b33; --danger:#f87171; --wt:#3987e5; --trips:#d95926;
+    --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70; --series-4:#c98500;
+    --series-5:#d55181; --series-6:#008300; --series-7:#9085e9; --series-8:#e66767; --other:#6b6a65;
   }
 
   *,*::before,*::after{ box-sizing:border-box; }
@@ -163,6 +181,14 @@
   .rail-item.active{ background:rgba(91,157,240,0.14); color:#fff; border-color:rgba(91,157,240,0.3); }
   .rail-item.active .ic{ color:var(--rail-accent); opacity:1; }
   .rail-item.hidden{ display:none; }
+  .rail-item.unavailable{ opacity:.38; }
+  .rail-item.unavailable:hover{ opacity:.6; }
+  .rail-eyebrow.group{ display:flex; align-items:center; gap:8px; margin-top:6px; border-top:1px solid var(--rail-border); padding-top:16px; }
+  .rail-eyebrow .tag{ font-size:9px; letter-spacing:.4px; padding:2px 6px; border-radius:5px; background:rgba(91,157,240,0.16); color:#cfe0f7; }
+  .unavail-card{ max-width:620px; margin:40px auto; text-align:center; background:var(--surface-card); border:1px solid var(--border); border-radius:14px; padding:28px 26px; box-shadow:var(--shadow); }
+  .unavail-card h3{ font-size:16px; margin-bottom:8px; }
+  .unavail-card p{ font-size:13px; color:var(--text-muted); line-height:1.6; }
+  .unavail-card .why{ margin-top:12px; font-size:12.5px; color:var(--text-primary); background:color-mix(in srgb, var(--warning) 12%, transparent); border:1px solid color-mix(in srgb, var(--warning) 35%, transparent); border-radius:10px; padding:10px 12px; text-align:left; }
 
   .rail-foot{
     padding:14px 20px 18px; border-top:1px solid var(--rail-border);
@@ -786,8 +812,134 @@
     }
     .chart-body .chart-legend .p-chip{ width:auto; flex:0 1 auto; }
   }
-</style>
 
+/* =====================================================================
+   SHORT PRODUCT & TONNAGE MODULE — every rule is scoped to #spView so it
+   never changes the look of the Dispatch reports (and vice-versa).
+   ===================================================================== */
+#spView{font-size:14px;line-height:1.45}
+#spView .hidden{display:none!important}
+#spView p{margin:0}
+#spView .sp-filters{position:sticky;top:var(--topbar-h,66px);z-index:15;background:color-mix(in srgb,var(--surface-page) 92%,transparent);backdrop-filter:blur(10px)}
+#spView .card{display:block}
+#spView .card-head{display:block;margin-bottom:0}
+#spView .sp-filters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 18px;padding:11px 28px 14px;border-bottom:1px solid var(--border)}
+#spView .filt-label{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.4px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+#spView .fbox,#spView .sp-filters select,#spView .sp-filters input[type=date]{border:1px solid var(--border-strong);background:var(--surface-card);color:var(--text-primary);font-family:var(--font-mono);font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer;min-width:120px;text-align:left;height:32px}
+#spView .fbox:hover,#spView .sp-filters select:hover,#spView .sp-filters input:hover{border-color:var(--accent)}
+#spView .link-btn{border:none;background:none;color:var(--accent);font-size:11.5px;font-weight:600;cursor:pointer;padding:6px 2px;text-decoration:underline}
+#spView .dd{position:relative}
+#spView .dd-panel{display:none;position:absolute;top:100%;left:0;margin-top:4px;z-index:40;background:var(--surface-card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:8px;min-width:250px;max-height:360px;overflow:auto}
+#spView .dd.open .dd-panel{display:block}
+#spView .dd-panel label{display:flex;gap:8px;align-items:center;padding:5px 6px;font-size:12.5px;cursor:pointer;border-radius:6px}
+#spView .dd-panel label:hover{background:var(--surface-hover)}
+#spView .dd-panel input[type=checkbox]{accent-color:var(--accent)}
+#spView .dd-panel .cnt{margin-left:auto;color:var(--text-muted);font-family:var(--font-mono);font-size:10.5px}
+#spView .dd-tools{display:flex;gap:6px;margin-bottom:6px}
+#spView .dd-tools input{flex:1;min-width:0;border:1px solid var(--border-strong);border-radius:7px;padding:5px 8px;background:var(--surface-card);color:var(--text-primary);font-size:12px}
+#spView .dd-tools button{border:1px solid var(--border-strong);background:var(--surface-card);color:var(--text-primary);border-radius:7px;font-size:11.5px;padding:4px 9px;cursor:pointer}
+
+/* ---------- Content ---------- */
+#spView .sp-content{padding:22px 28px 70px;max-width:1500px}
+#spView .subnav{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 18px}
+#spView .subnav a{font-size:12px;color:var(--text-secondary);text-decoration:none;border:1px solid var(--border-strong);background:var(--surface-card);padding:4px 11px;border-radius:999px}
+#spView .subnav a:hover{border-color:var(--accent);color:var(--accent)}
+#spView .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:22px}
+#spView .kpi{background:var(--surface-card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);min-width:0}
+#spView .kpi .label{font-size:11.5px;color:var(--text-muted);font-weight:500}
+#spView .kpi .value{font-size:24px;font-weight:600;margin-top:7px;letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#spView .kpi .value .unit{font-size:13px;font-weight:500;color:var(--text-secondary);margin-left:3px}
+#spView .kpi .sub{font-size:11.5px;color:var(--text-muted);margin-top:5px;font-family:var(--font-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#spView .card{background:var(--surface-card);border:1px solid var(--border);border-radius:14px;padding:18px 18px 16px;box-shadow:var(--shadow);margin-bottom:40px;scroll-margin-top:150px;min-width:0}
+#spView .card-head h3{font-size:15px;font-weight:600}
+#spView .card-head .hint{font-size:12px;color:var(--text-muted);margin-top:3px}
+#spView .chart-total{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:5px}
+#spView .chart-total b{color:var(--text-primary)}
+#spView .headline{margin:12px 0 4px;padding:10px 14px;background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;font-size:13.5px;line-height:1.55}
+#spView .headline b{font-weight:600}
+#spView .controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0 2px}
+#spView .seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:9px;overflow:hidden}
+#spView .seg button{border:none;background:var(--surface-card);color:var(--text-secondary);font-size:12.5px;font-weight:500;padding:7px 12px;cursor:pointer}
+#spView .seg button+button{border-left:1px solid var(--border-strong)}
+#spView .seg button.on{background:var(--accent);color:#fff}
+#spView .ctl{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)}
+#spView .ctl select{border:1px solid var(--border-strong);background:var(--surface-card);color:var(--text-primary);font-size:12.5px;font-weight:500;padding:6px 8px;border-radius:8px;max-width:260px}
+#spView .ctl .step{border:1px solid var(--border-strong);background:var(--surface-card);color:var(--text-primary);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:15px}
+#spView .ctl .step:disabled{opacity:.35;cursor:not-allowed}
+#spView .chart-body{display:flex;align-items:stretch;gap:12px;margin-top:10px;min-width:0}
+#spView .canvas-wrap{position:relative;flex:1 1 auto;min-width:0}
+#spView .chart-legend{flex:0 0 160px;width:160px;max-height:var(--legend-h,300px);overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:2px}
+#spView .chart-legend:empty{display:none}
+#spView .p-chip{display:flex;align-items:center;gap:7px;width:100%;min-height:34px;border:2px solid var(--danger);border-radius:9px;background:var(--surface-card);color:var(--text-primary);font-size:12px;font-weight:600;padding:4px 6px 4px 10px;cursor:pointer;text-align:left;box-shadow:0 2px 6px rgba(220,38,38,.12)}
+#spView .p-chip:hover{background:color-mix(in srgb,var(--danger) 8%,var(--surface-card))}
+#spView .p-chip .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+#spView .p-chip .lbl{flex:1;min-width:0;overflow-wrap:anywhere}
+#spView .p-chip .x{margin-left:auto;width:24px;min-width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;line-height:1;color:var(--danger)}
+#spView .p-chip.off{opacity:.55;text-decoration:line-through;background:color-mix(in srgb,var(--danger) 10%,var(--surface-card))}
+#spView .p-chip.off .x{color:var(--good);font-size:18px}
+#spView .p-chip.all{border-color:var(--good);box-shadow:none;justify-content:center}
+#spView .note{font-size:11.5px;color:var(--text-muted);margin:8px 0 0}
+#spView .legend-key{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-secondary);margin-top:8px}
+#spView .legend-key span{display:inline-flex;align-items:center;gap:6px}
+#spView .legend-key i{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+/* ---------- Tables ---------- */
+#spView .tbl-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 8px;padding-top:14px;border-top:1px solid var(--border)}
+#spView .tbl-bar .ttl{font-weight:600;font-size:13px;margin-right:auto}
+#spView .tbl-bar .meta{color:var(--text-muted);font-size:11px;font-family:var(--font-mono)}
+#spView .tbtn{border:1px solid var(--border-strong);background:var(--surface-card);color:var(--text-primary);border-radius:8px;padding:6px 11px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
+#spView .tbtn:hover{border-color:var(--accent)}
+#spView .tbtn.xls{background:#1d7a3e;border-color:#1d7a3e;color:#fff;font-weight:600}
+#spView .tbtn.xls:hover{filter:brightness(1.08)}
+#spView .tbtn.tbl-tg{background:var(--accent-wash);border-color:var(--accent);color:var(--accent);font-weight:600}
+#spView .tbl-off .tbl-wrap,#spView .tbl-off .pager,#spView .tbl-off .tbtn.rowtg{display:none!important}
+#spView .tbl-bar .ttl{cursor:pointer}
+#spView .tbl-wrap{overflow:auto;max-height:600px;border:1px solid var(--border);border-radius:10px}
+#spView table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+#spView th,#spView td{padding:7px 10px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+#spView th{position:sticky;top:0;background:var(--surface-alt);color:var(--text-muted);font-family:var(--font-mono);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;cursor:pointer;user-select:none;z-index:1}
+#spView th.num,#spView td.num{text-align:right}
+#spView th .ar{font-size:9px;margin-left:3px}
+#spView tbody tr:hover>td{background:var(--surface-hover)}
+#spView tr.sum td{font-weight:650;background:var(--surface-alt)}
+#spView td.tg{width:34px;padding:3px 4px 3px 8px}
+#spView .tg button{width:24px;height:24px;padding:0;font-weight:700;font-size:15px;line-height:20px;border-radius:6px;border:1px solid var(--border-strong);background:var(--surface-card);color:var(--accent);cursor:pointer}
+#spView .tg button.open{color:var(--danger)}
+#spView tr.detail>td{background:var(--surface-page);padding:8px 10px 12px 42px}
+#spView tr.detail table{background:var(--surface-card);border:1px solid var(--border);font-size:12px}
+#spView tr.detail th{position:static;cursor:default}
+#spView .sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:0}
+#spView .pager{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:8px;font-size:12px;color:var(--text-secondary)}
+#spView .pager button,#spView .pager select{border:1px solid var(--border-strong);background:var(--surface-card);color:var(--text-primary);border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer}
+#spView .empty{padding:40px;text-align:center;color:var(--text-muted)}
+
+@media (max-width:760px){
+  #spView .appbar-row,#spView .pagehead,#spView .sp-filters{padding-left:14px;padding-right:14px}
+  #spView .sp-content{padding:16px 12px 60px}
+  #spView .tabs{padding:0 8px}
+  #spView .appbar .file{margin-left:0;width:100%}
+  #spView .appbar .file .fname{max-width:200px}
+  #spView .chart-body{flex-direction:column}
+  #spView .chart-legend{flex:none;width:100%;max-height:none;flex-direction:row;flex-wrap:wrap}
+  #spView .p-chip{width:auto}
+  #spView .kpi-row{grid-template-columns:1fr 1fr}
+  #spView .kpi .value{font-size:20px}
+}
+/* graph-level hide/show chips: keep the coloured dots and let long product names wrap */
+#spView .chart-legend .p-chip{height:auto!important;min-height:34px!important;width:100%;padding:4px 6px 4px 10px!important;border:2px solid var(--danger)!important;border-radius:9px;background:var(--surface-card)!important;color:var(--text-primary)!important;font-size:12px;font-weight:600;transform:none!important}
+#spView .chart-legend .p-chip:hover{background:color-mix(in srgb,var(--danger) 8%,var(--surface-card))!important}
+#spView .chart-legend .p-chip.off{opacity:.55;text-decoration:line-through;background:color-mix(in srgb,var(--danger) 10%,var(--surface-card))!important}
+#spView .chart-legend .p-chip .dot{display:inline-block!important;width:10px!important;height:10px!important;border-radius:50%;flex-shrink:0}
+#spView .chart-legend .p-chip .x{width:24px!important;min-width:24px!important;height:24px!important;font-size:22px!important;font-weight:800!important;color:var(--danger)!important}
+#spView .chart-legend .p-chip.off .x{color:var(--good)!important;font-size:18px!important}
+#spView .chart-legend .p-chip.all{border-color:var(--good)!important;justify-content:center}
+#spView .chart-legend .p-chip.all .x{display:none}
+#spView .canvas-wrap{margin-top:0}
+@media (max-width:900px){#spView .sp-filters{position:static}}
+
+</style>
+</head>
+<body>
 <div id="boot-loader" style="display:none;">
   <div class="spinner"></div>
   <div class="boot-label" id="bootLabel">Working&hellip;</div>
@@ -808,9 +960,9 @@
         </div>
       </div>
 
-      <div class="brand-eyebrow"><span class="dot"></span>Plant-wise Loading Reports</div>
+      <div class="brand-eyebrow"><span class="dot"></span>Dispatch &amp; Short Product Reports</div>
       <h1 class="brand-headline">Turn your loading data into <span>clear dispatch insights</span>.</h1>
-      <p class="brand-copy">A fast, private dashboard for reviewing loading and dispatch performance across plants &mdash; built for the Balaji Transportation operations team.</p>
+      <p class="brand-copy">Upload your loading report (Excel or CSV) and instantly see plant-wise dispatch reports plus tonnage and trips for every Short Product &mdash; daily, weekly and monthly, with interactive charts. Everything is processed privately in your browser.</p>
 
       <div class="brand-section-title">What you get</div>
       <div class="feature-grid">
@@ -820,11 +972,11 @@
         </div>
         <div class="feature">
           <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M7 15l4-4 3 3 5-6"></path></svg></div>
-          <div><h4>Interactive Charts</h4><p>KPIs and trends at a glance.</p></div>
+          <div><h4>Short Product &amp; Tonnage</h4><p>Tonnage and trips for every product.</p></div>
         </div>
         <div class="feature">
           <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></div>
-          <div><h4>Date Filtering</h4><p>Focus on any date range.</p></div>
+          <div><h4>Daily &middot; Weekly &middot; Monthly</h4><p>Interactive charts for any date range.</p></div>
         </div>
         <div class="feature">
           <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></div>
@@ -848,7 +1000,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="13" height="8"></rect><path d="M15 12h3.5L21 15v2h-6"></path><circle cx="6.5" cy="18" r="1.8"></circle><circle cx="17.5" cy="18" r="1.8"></circle></svg>
         </div>
         <h2 id="uploadTitle">Loading Reports Dashboard</h2>
-        <p class="lede">Upload a Loading Report workbook (.xlsx / .xls / .csv) to generate the dispatch analytics reports.</p>
+        <p class="lede">Upload one Loading Report workbook (.xlsx / .xls / .csv) to generate both the plant-wise dispatch reports and the Short Product &amp; tonnage reports.</p>
         <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload workbook">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"></path><path d="M7 9l5-5 5 5"></path><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg>
           <div class="dz-title">Drop your workbook here</div>
@@ -859,7 +1011,7 @@
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
           Choose File
         </button>
-        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none;">
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.xlsm,.xlsb,.csv" style="display:none;">
         <div class="upload-hint">Nothing is uploaded to a server &mdash; the file is read in your browser only.</div>
         <div class="upload-error" id="uploadError"></div>
 
@@ -867,7 +1019,7 @@
         <ol class="steps">
           <li class="step"><div class="step-num">1</div><div><h5>Upload</h5><p>Select your loading report workbook.</p></div></li>
           <li class="step"><div class="step-num">2</div><div><h5>Process</h5><p>Data is read and summarised instantly.</p></div></li>
-          <li class="step"><div class="step-num">3</div><div><h5>Analyse</h5><p>Explore plant-wise dispatch reports.</p></div></li>
+          <li class="step"><div class="step-num">3</div><div><h5>Analyse</h5><p>Explore dispatch and Short Product reports.</p></div></li>
         </ol>
       </div>
     </section>
@@ -897,7 +1049,7 @@
     </div>
 
     <nav class="rail-nav" id="railNav">
-      <div class="rail-eyebrow">Analytical Reports</div>
+      <div class="rail-eyebrow">Dispatch Reports</div>
       <!-- nav items injected by JS -->
     </nav>
 
@@ -922,10 +1074,27 @@
       <div class="topbar-meta"><span class="live-dot"></span><span id="topbarMeta">&nbsp;</span></div>
     </div>
 
-    <div class="filter-bar" id="filterBar"></div>
+    <!-- View 1: plant-wise Dispatch reports -->
+    <div id="dispatchView">
+      <div class="filter-bar" id="filterBar"></div>
+      <div class="content">
+        <div class="content-inner" id="contentInner"></div>
+      </div>
+    </div>
 
-    <div class="content">
-      <div class="content-inner" id="contentInner"></div>
+    <!-- View 2: Short Product & Tonnage reports -->
+    <div id="spView" hidden>
+      <div class="sp-filters">
+        <div><span class="filt-label">Sheets / plants</span><div class="dd" id="spSheets"><button type="button" class="fbox dd-btn"></button><div class="dd-panel"></div></div></div>
+        <div><span class="filt-label">Date basis</span><select id="spDateCol"></select></div>
+        <div><span class="filt-label">Start date</span><input type="date" id="spFrom"></div>
+        <div><span class="filt-label">End date</span><input type="date" id="spTo"></div>
+        <div><span class="filt-label">Short Products</span><div class="dd" id="spProducts"><button type="button" class="fbox dd-btn"></button><div class="dd-panel"></div></div></div>
+        <button class="link-btn" id="spReset" type="button">Reset filters</button>
+        <button class="link-btn" id="spHideTbls" type="button" title="Collapse every table on this page (charts stay visible)">Hide all tables</button>
+        <button class="link-btn" id="spShowTbls" type="button" title="Expand every table on this page">Show all tables</button>
+      </div>
+      <main class="sp-content" id="spContent"></main>
     </div>
   </div>
 </div>
@@ -933,6 +1102,838 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
+/* ======================================================================
+   MODULE 2 — SHORT PRODUCT & TONNAGE REPORTS
+   (from "loading report_1_1 fixed.html"; exposes window.SPDash)
+   ====================================================================== */
+(() => {
+'use strict';
+/* =================== helpers =================== */
+const $ = s => document.querySelector(s);
+const el = (tag, attrs = {}, ...kids) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null) continue;
+    if (k === 'class') e.className = v; else if (k === 'text') e.textContent = v; else if (k === 'html') e.innerHTML = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v);
+  }
+  kids.flat().forEach(k => k != null && e.append(k));
+  return e;
+};
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const norm = s => String(s ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const clean = s => String(s ?? '').replace(/\s+/g, ' ').trim();
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAYMS = 864e5;
+const dayNum = (y, m, d) => Math.floor(Date.UTC(y, m, d) / DAYMS);
+const dParts = n => { const d = new Date(n * DAYMS); return { y: d.getUTCFullYear(), m: d.getUTCMonth(), d: d.getUTCDate(), w: d.getUTCDay() }; };
+const fmtDate = n => { const p = dParts(n); return `${String(p.d).padStart(2,'0')}-${MON[p.m]}-${p.y}`; };
+const isoDate = n => { const p = dParts(n); return `${p.y}-${String(p.m+1).padStart(2,'0')}-${String(p.d).padStart(2,'0')}`; };
+const fromIso = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? dayNum(+m[1], +m[2]-1, +m[3]) : null; };
+const nfWt = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+/* up to 1 decimal: trips can be fractional when one vehicle (Shipment No) carries several Short Products */
+const nfInt = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 });
+const nf1 = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const fWt = v => nfWt.format(v || 0);
+const fInt = v => nfInt.format(v || 0);
+const fPct = v => (v || 0).toFixed(2) + '%';
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const plural = (n, a, b) => `${fInt(n)} ${n === 1 ? a : b}`;
+
+function parseDate(v) {
+  if (v == null || v === '') return null;
+  if (v instanceof Date && !isNaN(v)) return dayNum(v.getFullYear(), v.getMonth(), v.getDate());
+  if (typeof v === 'number') return (v > 20000 && v < 80000) ? Math.floor(v) - 25569 : null;
+  const s = String(v).trim(); let m;
+  if ((m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(s))) return dayNum(+m[1], +m[2]-1, +m[3]);
+  if ((m = /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/.exec(s))) { let y = +m[3]; if (y < 100) y += 2000; return dayNum(y, +m[2]-1, +m[1]); }
+  if ((m = /^(\d{1,2})[\s\-]*([A-Za-z]{3,})[\s\-,]*(\d{2,4})/.exec(s))) {
+    const mi = MON.findIndex(x => x.toLowerCase() === m[2].slice(0,3).toLowerCase());
+    if (mi >= 0) { let y = +m[3]; if (y < 100) y += 2000; return dayNum(y, mi, +m[1]); }
+  }
+  const t = Date.parse(s);
+  if (!isNaN(t)) { const d = new Date(t); return dayNum(d.getFullYear(), d.getMonth(), d.getDate()); }
+  return null;
+}
+function parseNum(v) {
+  if (typeof v === 'number') return isFinite(v) ? v : NaN;
+  if (v == null) return NaN;
+  const s = String(v).replace(/,/g, '').trim();
+  return s === '' ? NaN : Number(s);
+}
+
+/* =================== periods =================== */
+const isoWeek = k => { const thu = k + 3, y = dParts(thu).y; return { wk: Math.floor((thu - dayNum(y, 0, 1)) / 7) + 1, y }; };
+const PERIODS = {
+  month: { name: 'Month', key: d => { const p = dParts(d); return p.y * 12 + p.m; }, label: k => `${MON[k % 12]} ${Math.floor(k / 12)}`, short: k => `${MON[k % 12]} ${Math.floor(k / 12)}` },
+  week: { name: 'Week', key: d => d - ((dParts(d).w + 6) % 7),
+    label: k => weekLabelEasy(k),
+    short: k => weekLabelEasy(k) },
+  day: { name: 'Date', key: d => d, label: k => fmtDate(k), short: k => { const p = dParts(k); return `${String(p.d).padStart(2,'0')} ${MON[p.m]}`; } }
+};
+const weekRange = k => {
+  const a = dParts(k), b = dParts(k + 6);
+  const start = `${String(a.d).padStart(2,'0')} ${MON[a.m]}`;
+  const end = `${String(b.d).padStart(2,'0')} ${MON[b.m]}`;
+  return a.y === b.y ? `${start} – ${end} ${a.y}` : `${start} ${a.y} – ${end} ${b.y}`;
+};
+const weekLabelEasy = k => weekRange(k);
+const dayName = k => DOW[dParts(k).w];
+
+/* =================== state =================== */
+const S = {
+  fileName: '', sheets: [], recs: [], dateCols: [], extraCols: [], hasTripsCol: false, skipped: 0,
+  products: [], productCount: new Map(),
+  f: { sheets: new Set(), products: new Set(), from: null, to: null, dateCol: null },
+  colorMap: new Map(), charts: [], F: [], prodAgg: [], series: [], seriesSet: new Set(), otherProducts: [], slotOf: new Map(),
+  tab: 'home', active: false, topN: 10, tblHidden: new Set(), tblAllHidden: true, tblCtl: []  /* tables start hidden; use "Show table" or "Show all tables" */
+};
+const OTHER = '\u0000other';
+const SLOTS = 8;
+
+function findCol(hdrNorm, exact, test) {
+  for (const e of exact) { const i = hdrNorm.indexOf(e); if (i >= 0) return i; }
+  if (test) { const i = hdrNorm.findIndex(test); if (i >= 0) return i; }
+  return -1;
+}
+const EXTRA_DEFS = [['vehicleno','vehiclenumber','vehicle','truckno','lorryno'], ['shortparty','party','customer','consignee'], ['destination'], ['product'], ['invoiceno','invoicenumber','invoice']];
+/* FIX (date mapping): the same date column is titled differently in some sheets
+   (e.g. Neotrex has "Loading Report Date", the other sheets "Loading Ready Date").
+   Without this map, choosing "Loading Ready Date" as Date basis silently dropped every Neotrex row. */
+const DATE_ALIASES = { loadingreportdate: 'Loading Ready Date', loadingreadydate: 'Loading Ready Date' };
+
+function parseWorkbook(wb, fileName) {
+  destroyCharts();
+  const recs = [], sheets = [], dateColSet = new Map(), extraSet = new Map(), prodCanon = new Map(), dateCanon = new Map();
+  let skipped = 0, hasTrips = false;
+  for (const name of wb.SheetNames) {
+    const ws = wb.Sheets[name]; if (!ws || !ws['!ref']) continue;
+    const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null, blankrows: false });
+    let hr = -1, iP = -1, iW = -1, hN = null;
+    for (let r = 0; r < Math.min(aoa.length, 40); r++) {
+      const n = (aoa[r] || []).map(norm);
+      const p = findCol(n, ['shortproduct'], x => x.includes('short') && x.includes('product'));
+      const w = findCol(n, ['invwt','invweight','invoicewt','invoiceweight'], x => x.startsWith('inv') && (x.endsWith('wt') || x.endsWith('weight')));
+      if (p >= 0 && w >= 0) { hr = r; iP = p; iW = w; hN = n; break; }
+    }
+    if (hr < 0) continue;
+    const hdr = (aoa[hr] || []).map(clean);
+    const dateIdx = []; hN.forEach((n, i) => { if (n.includes('date')) dateIdx.push(i); });
+    /* one canonical name per date column across all sheets (aliases + case/spacing differences) */
+    const dName = {}; dateIdx.forEach(i => { const a = DATE_ALIASES[hN[i]]; const k = a ? norm(a) : hN[i]; if (!dateCanon.has(k)) dateCanon.set(k, a || hdr[i]); dName[i] = dateCanon.get(k); });
+    const tripIdx = findCol(hN, ['trips','trip','nooftrips']); if (tripIdx >= 0) hasTrips = true;
+    /* Shipment No = one vehicle trip. Trips are recalculated from it below instead of trusting the
+       cached "Trips" cells, whose COUNTIF formulas can point at the wrong sheet/range. */
+    const shipIdx = findCol(hN, ['shipmentno','shipmentnumber','shipno','shipmentid'], x => x.includes('shipment') && !x.includes('date'));
+    if (shipIdx >= 0) hasTrips = true;
+    /* FIX (trips): one trip = one vehicle under one Shipment No. The same Shipment No typed against two
+       different vehicles (BMM ISPATH (TMT) rows 75/76 and 2563/2564) is two vehicles loaded, not one. */
+    const vehIdx = findCol(hN, ['vehicleno','vehiclenumber','truckno','lorryno']);
+    const extraIdx = [];
+    for (const def of EXTRA_DEFS) { const i = findCol(hN, def); if (i >= 0 && i !== iP && i !== iW) extraIdx.push(i); }
+    let count = 0;
+    for (let r = hr + 1; r < aoa.length; r++) {
+      const row = aoa[r]; if (!row) continue;
+      const pRaw = clean(row[iP]); const wt = parseNum(row[iW]);
+      if (!pRaw || isNaN(wt)) { if (row.some(v => v != null && v !== '')) skipped++; continue; }
+      const pk = pRaw.toUpperCase(); if (!prodCanon.has(pk)) prodCanon.set(pk, pRaw);
+      const dates = {};
+      for (const i of dateIdx) { const dn = dName[i]; if (!dateColSet.has(dn)) dateColSet.set(dn, 0); const d = parseDate(row[i]); if (d != null) { dates[dn] = d; dateColSet.set(dn, dateColSet.get(dn) + 1); } }
+      const extra = {};
+      for (const i of extraIdx) { extraSet.set(hdr[i], true); extra[hdr[i]] = row[i] == null ? '' : clean(row[i]); }
+      let trips = 1; if (tripIdx >= 0) { const t = parseNum(row[tripIdx]); trips = isNaN(t) ? 1 : t; }
+      /* shipKey: same sheet + same Shipment No + same Vehicle No = one trip. Blank Shipment No = its own trip. */
+      let shipKey = null;
+      if (shipIdx >= 0) { const sv = clean(row[shipIdx]); const vv = vehIdx >= 0 ? norm(row[vehIdx]).toUpperCase() : '';
+        shipKey = sv ? `${name}\u0001${sv.toUpperCase()}\u0001${vv}` : `${name}\u0001#row${r}`; }
+      recs.push({ sheet: name, product: prodCanon.get(pk), wt, trips, shipKey, dates, extra, day: null });
+      count++;
+    }
+    if (count) sheets.push({ name, count });
+  }
+  if (!recs.length) return { ok: false, error: 'No sheet in this file has both a “Short Product” and an “Inv Wt” column with data.' };
+  /* Trips = 1 ÷ (number of invoice rows sharing that Shipment No) — the same rule as the workbook's
+     =1/COUNTIF(ShipmentNo) column, but computed here for every sheet so each vehicle counts exactly once.
+     A vehicle carrying two Short Products gives 0.5 trip to each, so product trips add up to the grand total. */
+  const shipRows = new Map();
+  recs.forEach(r => { if (r.shipKey) shipRows.set(r.shipKey, (shipRows.get(r.shipKey) || 0) + 1); });
+  recs.forEach(r => { if (r.shipKey) r.trips = 1 / shipRows.get(r.shipKey); });
+  const dateCols = [...dateColSet.entries()].filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]).map(([k]) => k);
+  if (!dateCols.length) return { ok: false, error: 'No date column with valid dates was found in the sheets that have Short Product and Inv Wt.' };
+
+  Object.assign(S, { fileName, sheets, recs, dateCols, extraCols: [...extraSet.keys()], hasTripsCol: hasTrips, skipped, tab: 'home' });
+  const tot = new Map(); recs.forEach(r => tot.set(r.product, (tot.get(r.product) || 0) + r.wt));
+  S.products = [...tot.entries()].sort((a, b) => b[1] - a[1]).map(([p]) => p);
+  S.productCount = new Map(); recs.forEach(r => S.productCount.set(r.product, (S.productCount.get(r.product) || 0) + 1));
+  S.colorMap = new Map(); S.products.slice(0, SLOTS).forEach((p, i) => S.colorMap.set(p, i));
+  resetFilters();
+  return { ok: true, sheets: sheets.length, rows: recs.length, skipped };
+}
+const defaultDateCol = () => S.dateCols.find(c => /shipment/i.test(c)) || S.dateCols[0];
+function resetFilters() {
+  S.f = { sheets: new Set(S.sheets.map(s => s.name)), products: new Set(S.products), from: null, to: null, dateCol: defaultDateCol() };
+  applyDateCol(); buildFilters();
+}
+function applyDateCol() {
+  const c = S.f.dateCol; let min = Infinity, max = -Infinity;
+  for (const r of S.recs) { r.day = r.dates[c] ?? null; if (r.day != null) { if (r.day < min) min = r.day; if (r.day > max) max = r.day; } }
+  S.minDay = min; S.maxDay = max; S.f.from = min; S.f.to = max;
+}
+
+/* =================== filters =================== */
+function buildDropdown(root, items, selected, labelAll, onChange) {
+  const btn = root.querySelector('.dd-btn'), panel = root.querySelector('.dd-panel');
+  panel.innerHTML = '';
+  const search = el('input', { type: 'search', placeholder: 'Search…' }); const list = el('div');
+  const setLabel = () => { const n = selected.size; btn.textContent = (n === items.length ? labelAll : n === 0 ? 'None selected' : n === 1 ? [...selected][0] : `${n} of ${items.length} selected`) + '  ▾'; };
+  const draw = () => {
+    list.innerHTML = ''; const q = search.value.toLowerCase();
+    items.filter(it => it.name.toLowerCase().includes(q)).forEach(it => {
+      const cb = el('input', { type: 'checkbox' }); cb.checked = selected.has(it.name);
+      cb.onchange = () => { cb.checked ? selected.add(it.name) : selected.delete(it.name); setLabel(); onChange(); };
+      list.append(el('label', {}, cb, el('span', { text: it.name }), el('span', { class: 'cnt', text: fInt(it.count) })));
+    });
+  };
+  const all = el('button', { type: 'button', text: 'All', onclick: () => { items.forEach(i => selected.add(i.name)); draw(); setLabel(); onChange(); } });
+  const none = el('button', { type: 'button', text: 'None', onclick: () => { selected.clear(); draw(); setLabel(); onChange(); } });
+  search.oninput = draw;
+  panel.append(el('div', { class: 'dd-tools' }, search, all, none), list);
+  btn.onclick = e => { e.stopPropagation(); document.querySelectorAll('.dd.open').forEach(d => d !== root && d.classList.remove('open')); root.classList.toggle('open'); };
+  panel.onclick = e => e.stopPropagation();
+  draw(); setLabel();
+}
+document.addEventListener('click', () => document.querySelectorAll('.dd.open').forEach(d => d.classList.remove('open')));
+let renderTimer = null;
+const scheduleRender = () => { clearTimeout(renderTimer); renderTimer = setTimeout(renderAll, 150); };
+function buildFilters() {
+  buildDropdown($('#spSheets'), S.sheets.map(s => ({ name: s.name, count: s.count })), S.f.sheets, 'All sheets', scheduleRender);
+  buildDropdown($('#spProducts'), S.products.map(p => ({ name: p, count: S.productCount.get(p) })), S.f.products, 'All products', scheduleRender);
+  const dc = $('#spDateCol'); dc.innerHTML = '';
+  S.dateCols.forEach(c => dc.append(el('option', { value: c, text: c })));
+  dc.value = S.f.dateCol;
+  dc.onchange = () => { S.f.dateCol = dc.value; applyDateCol(); setDateInputs(); renderAll(); };
+  setDateInputs();
+  $('#spFrom').onchange = e => { S.f.from = fromIso(e.target.value) ?? S.minDay; renderAll(); };
+  $('#spTo').onchange = e => { S.f.to = fromIso(e.target.value) ?? S.maxDay; renderAll(); };
+  $('#spReset').onclick = () => { resetFilters(); renderAll(); };
+}
+function setDateInputs() {
+  for (const id of ['#spFrom', '#spTo']) { const i = $(id); i.min = isoDate(S.minDay); i.max = isoDate(S.maxDay); }
+  $('#spFrom').value = isoDate(S.f.from); $('#spTo').value = isoDate(S.f.to);
+}
+
+/* =================== aggregation =================== */
+function aggregate(recs, keyFn) {
+  const m = new Map();
+  for (const r of recs) {
+    const k = keyFn(r); let g = m.get(k);
+    if (!g) m.set(k, g = { key: k, wt: 0, trips: 0, recs: [], min: Infinity, max: -Infinity });
+    g.wt += r.wt; g.trips += r.trips; g.recs.push(r);
+    if (r.day < g.min) g.min = r.day; if (r.day > g.max) g.max = r.day;
+  }
+  return m;
+}
+const byWtDesc = (a, b) => b.wt - a.wt;
+const sumWt = rs => rs.reduce((a, r) => a + r.wt, 0);
+const sumTrips = rs => rs.reduce((a, r) => a + r.trips, 0);
+function assignColors(visible) {
+  const res = new Map(), used = new Set();
+  for (const p of visible) { const s = S.colorMap.get(p); if (s != null && !used.has(s)) { res.set(p, s); used.add(s); } }
+  for (const p of visible) { if (res.has(p)) continue; let s = 0; while (used.has(s) && s < SLOTS) s++; S.colorMap.set(p, s); res.set(p, s); used.add(s); }
+  return res;
+}
+const seriesColor = key => key === OTHER ? cssVar('--other') : cssVar(`--series-${(S.slotOf.get(key) ?? 0) + 1}`);
+const seriesKey = p => S.seriesSet.has(p) ? p : OTHER;
+const seriesLabel = key => key === OTHER ? `Other (${S.otherProducts.length})` : key;
+
+/* =================== tabs & render =================== */
+const TABS = [
+  { id: 'home', label: 'Short Product Overview', title: 'Short Product & Tonnage Overview', sub: 'Inv Wt (tonnage) and trips by Short Product, sheet and month' },
+  { id: 'top', label: 'Top Short Products', title: 'Top Short Products', sub: 'Short Products ranked by Inv Wt (tonnage)' },
+  { id: 'monthly', label: 'Monthly Short Product Reports', title: 'Monthly Reports', sub: 'Short Product, Inv Wt and both together — month-wise' },
+  { id: 'daily', label: 'Daily Loading Report', title: 'Daily Reports', sub: 'How much was loaded each day — tonnage, vehicles and Short Products in one graph' },
+  { id: 'weekly', label: 'Weekly Short Product Reports', title: 'Weekly Reports', sub: 'Weekly loading — each bar represents one Monday-to-Sunday week, shown with the actual dates' }
+];
+function buildTabs() {
+  const nav = $('#tabs'); nav.innerHTML = '';
+  TABS.forEach((t, i) => nav.append(el('button', { class: 'tab' + (S.tab === t.id ? ' on' : ''), type: 'button', onclick: () => { S.tab = t.id; window.scrollTo(0, 0); renderAll(); } },
+    el('span', { class: 'n', text: String(i + 1).padStart(2, '0') }), t.label)));
+}
+function destroyCharts() { S.charts.forEach(c => c.destroy()); S.charts = []; }
+/* Hide / Show all tables: applies to every table on every tab */
+$('#spHideTbls').onclick = () => { S.tblAllHidden = true; S.tblHidden.clear(); S.tblCtl.forEach(f => f(true)); };
+$('#spShowTbls').onclick = () => { S.tblAllHidden = false; S.tblHidden.clear(); S.tblCtl.forEach(f => f(false)); };
+
+function renderAll() {
+  if (!S.active || !S.recs.length) return;   /* only draw while this module is on screen */
+  destroyCharts();
+  const f = S.f;
+  S.F = S.recs.filter(r => r.day != null && f.sheets.has(r.sheet) && f.products.has(r.product) && r.day >= f.from && r.day <= f.to);
+  S.prodAgg = [...aggregate(S.F, r => r.product).values()].sort(byWtDesc);
+  const needOther = S.prodAgg.length > SLOTS;
+  S.series = S.prodAgg.slice(0, needOther ? SLOTS - 1 : SLOTS).map(g => g.key);
+  S.seriesSet = new Set(S.series);
+  S.otherProducts = S.prodAgg.filter(g => !S.seriesSet.has(g.key)).map(g => g.key);
+  S.slotOf = assignColors(S.series);
+  S.days = [...new Set(S.F.map(r => r.day))].sort((a, b) => a - b);
+
+  const tab = TABS.find(t => t.id === S.tab);
+  $('#reportTitle').textContent = tab.title; $('#reportSubtitle').textContent = tab.sub;
+  $('#topbarMeta').textContent = `${isoDate(f.from)} → ${isoDate(f.to)} · by ${f.dateCol}`;
+
+  const host = $('#spContent'); host.innerHTML = ''; S.tblCtl = [];
+  if (!S.F.length) { host.append(el('div', { class: 'card empty', text: 'No rows match the current filters. Use “Reset filters” to start again.' })); return; }
+  ({ home: renderHome, top: renderTop, monthly: () => renderPeriodTab(PERIODS.month, 'Monthly'), daily: renderDaily, weekly: () => renderPeriodTab(PERIODS.week, 'Weekly') })[S.tab](host);
+}
+
+/* =================== chart plumbing =================== */
+const valueLabels = {
+  id: 'valueLabels',
+  afterDatasetsDraw(chart, _a, o) {
+    if (!o || !o.enabled) return;
+    const { ctx } = chart; const horiz = chart.options.indexAxis === 'y';
+    ctx.save(); ctx.font = `600 11px ${cssVar('--font-ui') || 'sans-serif'}`; ctx.fillStyle = cssVar('--text-secondary');
+    if (o.stackTotals) {
+      const metas = chart.data.datasets.map((d, i) => chart.isDatasetVisible(i) && d.type !== 'line' ? chart.getDatasetMeta(i) : null).filter(Boolean);
+      const n = chart.data.labels.length;
+      for (let i = 0; i < n; i++) {
+        let tot = 0, top = Infinity, x = null;
+        metas.forEach(m => { const ds = chart.data.datasets[m.index]; const v = ds.data[i] || 0; if (!v) return; tot += v; const b = m.data[i]; if (b.y < top) top = b.y; x = b.x; });
+        if (!tot || x == null) continue;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(o.format(tot, i), x, top - 4);
+      }
+    } else {
+      chart.data.datasets.forEach((ds, di) => {
+        if (!chart.isDatasetVisible(di) || ds.type === 'line') return;
+        chart.getDatasetMeta(di).data.forEach((b, i) => {
+          const v = ds.data[i]; if (!v) return; const t = o.format(v, i);
+          if (horiz) { ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(t, b.x + 6, b.y); }
+          else { ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(t, b.x, b.y - 4); }
+        });
+      });
+    }
+    ctx.restore();
+  }
+};
+function baseOptions() {
+  const text2 = cssVar('--text-secondary'), grid = cssVar('--grid');
+  return {
+    responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
+    interaction: { mode: 'index', intersect: false },
+    layout: { padding: { top: 18, right: 8 } },
+    plugins: {
+      legend: { display: false },
+      valueLabels: { enabled: false },
+      tooltip: { backgroundColor: cssVar('--surface-card'), titleColor: cssVar('--text-primary'), bodyColor: cssVar('--text-secondary'), footerColor: cssVar('--text-primary'),
+        borderColor: cssVar('--border-strong'), borderWidth: 1, padding: 11, boxPadding: 4, usePointStyle: true,
+        titleFont: { weight: '600', size: 13 }, bodyFont: { size: 12 }, footerFont: { weight: '600', size: 12 } }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: text2, maxRotation: 0, autoSkip: true, autoSkipPadding: 12 }, border: { color: grid } },
+      y: { grid: { color: grid }, ticks: { color: text2, callback: v => fInt(v) }, border: { display: false }, beginAtZero: true }
+    }
+  };
+}
+const axisTitle = t => ({ display: true, text: t, color: cssVar('--danger'), font: { weight: '600', size: 11, family: cssVar('--font-mono') } });
+
+function chartSlot(card) {
+  const body = el('div', { class: 'chart-body' }); const wrap = el('div', { class: 'canvas-wrap' }); const legend = el('div', { class: 'chart-legend' });
+  body.append(wrap, legend); card.append(body); let ch = null;
+  return {
+    legend,
+    set(height, config) {
+      if (ch) { ch.destroy(); S.charts = S.charts.filter(c => c !== ch); }
+      wrap.innerHTML = ''; wrap.style.height = height + 'px'; body.style.setProperty('--legend-h', height + 'px');
+      const cv = el('canvas'); wrap.append(cv);
+      config.plugins = [valueLabels];
+      ch = new Chart(cv, config); S.charts.push(ch); return ch;
+    }
+  };
+}
+function drawChips(legend, items, hidden, onChange, colored) {
+  legend.innerHTML = '';
+  items.forEach(it => {
+    const off = hidden.has(it.key);
+    legend.append(el('button', { type: 'button', class: 'p-chip' + (off ? ' off' : ''), title: off ? `Show ${it.label}` : `Hide ${it.label}`,
+      onclick: () => { off ? hidden.delete(it.key) : hidden.add(it.key); onChange(); } },
+      colored ? el('span', { class: 'dot', style: `background:${it.color}` }) : null, el('span', { class: 'lbl', text: it.label }), el('span', { class: 'x', text: off ? '↻' : '×' })));
+  });
+  if (hidden.size) legend.append(el('button', { type: 'button', class: 'p-chip all', text: 'Show all', onclick: () => { hidden.clear(); onChange(); } }));
+}
+function cardShell(host, id, title, hint) {
+  const card = el('section', { class: 'card', id });
+  const total = el('div', { class: 'chart-total' });
+  card.append(el('div', { class: 'card-head' }, el('h3', { text: title }), hint ? el('div', { class: 'hint', text: hint }) : null, total));
+  host.append(card);
+  card.setTotal = (wt, trips) => { total.innerHTML = `Total: <b>${fWt(wt)}</b> MT · <b>${fInt(trips)}</b> trips`; };
+  return card;
+}
+
+/* =================== table component =================== */
+const REC_COLS = () => [
+  { label: 'Sheet', type: 'text', v: r => r.sheet },
+  { label: S.f.dateCol, type: 'text', v: r => fmtDate(r.day) },
+  { label: 'Day', type: 'text', v: r => dayName(r.day) },
+  { label: 'Short Product', type: 'text', v: r => r.product },
+  { label: 'Inv Wt (MT)', type: 'wt', v: r => r.wt },
+  ...(S.hasTripsCol ? [{ label: 'Trips', type: 'int', v: r => r.trips }] : []),
+  ...S.extraCols.map(c => ({ label: c, type: 'text', v: r => r.extra[c] ?? '' }))
+];
+const recordDetail = recs => {
+  const cols = REC_COLS(); const sorted = recs.slice().sort((a, b) => a.day - b.day || b.wt - a.wt);
+  return { columns: cols.map(c => ({ label: c.label, type: c.type })), rows: sorted.map(r => cols.map(c => c.v(r))), title: `${fInt(recs.length)} loading records` };
+};
+/* ---- plant-wise helpers: plants = sheets of the uploaded workbook (read dynamically, never hardcoded) ---- */
+const plantList = recs => { const s = new Set(recs.map(r => r.sheet)); return S.sheets.map(x => x.name).filter(n => s.has(n)); };
+const byPlant = recs => { const m = new Map(); recs.forEach(r => { let g = m.get(r.sheet); if (!g) m.set(r.sheet, g = { wt: 0, trips: 0 }); g.wt += r.wt; g.trips += r.trips; }); return m; };
+const plantTipLines = recs => { const m = byPlant(recs); const pl = plantList(recs); if (pl.length < 1) return [];
+  return ['', 'Plant-wise:', ...pl.map(p => `  • ${p}: ${fInt(m.get(p).trips)} trips · ${fWt(m.get(p).wt)} MT`)]; };
+const productDetail = (recs, scopeLabel) => {
+  const tw = sumWt(recs); const g = [...aggregate(recs, r => r.product).values()].sort(byWtDesc);
+  const plants = plantList(recs); const multi = plants.length > 1; const pm = g.map(p => byPlant(p.recs));
+  return { title: `Short Products in ${scopeLabel}` + (multi ? ' — with plant-wise trips and MT' : ''),
+    columns: [{ label: 'Short Product', type: 'text' }, { label: 'Inv Wt (MT)', type: 'wt' }, { label: 'Trips', type: 'int' }, { label: 'Share of Inv Wt', type: 'pct' }, { label: 'Avg MT / Trip', type: 'wt' },
+      ...(multi ? plants.flatMap(pl => [{ label: `${pl} — Trips`, type: 'int' }, { label: `${pl} — MT`, type: 'wt' }]) : [])],
+    rows: g.map((p, i) => [p.key, p.wt, p.trips, tw ? p.wt / tw * 100 : 0, p.wt / p.trips,
+      ...(multi ? plants.flatMap(pl => [pm[i].get(pl)?.trips || 0, pm[i].get(pl)?.wt || 0]) : [])]) };
+};
+const fmtCell = (v, type) => v === '' ? '' : type === 'wt' ? fWt(v) : type === 'int' ? fInt(v) : type === 'pct' ? fPct(v) : (v ?? '');
+const isNum = t => t === 'wt' || t === 'int' || t === 'pct';
+
+function mountTable(card, title, exportName) {
+  const meta = el('span', { class: 'meta' });
+  const bExp = el('button', { type: 'button', class: 'tbtn', title: 'Expand every row of this table (all pages)', text: '+ Expand all' });
+  const bCol = el('button', { type: 'button', class: 'tbtn', title: 'Collapse all rows', text: '− Collapse all' });
+  const bXls = el('button', { type: 'button', class: 'tbtn xls', text: '⬇ Export to Excel' });
+  const ttl = el('span', { class: 'ttl', text: title });
+  /* Whole-table show / hide. The choice is remembered per table while you change tabs and filters. */
+  const tblKey = exportName || title;
+  const bTbl = el('button', { type: 'button', class: 'tbtn tbl-tg' });
+  bExp.classList.add('rowtg'); bCol.classList.add('rowtg');
+  const tblIsHidden = () => S.tblAllHidden ? !S.tblHidden.has(tblKey) : S.tblHidden.has(tblKey);   // S.tblHidden = exceptions to the all-tables mode
+  const setTbl = hide => { (S.tblAllHidden ? !hide : hide) ? S.tblHidden.add(tblKey) : S.tblHidden.delete(tblKey); card.classList.toggle('tbl-off', hide);
+    bTbl.textContent = hide ? '▸ Show table' : '▾ Hide table'; bTbl.title = hide ? 'Show this table' : 'Hide this table'; };
+  bTbl.onclick = e => { e.stopPropagation(); setTbl(!tblIsHidden()); };
+  ttl.title = 'Click to show / hide this table'; ttl.onclick = bTbl.onclick; S.tblCtl.push(setTbl);
+  card.append(el('div', { class: 'tbl-bar' }, ttl, meta, bTbl, bExp, bCol, bXls));
+  const wrap = el('div', { class: 'tbl-wrap' }); const pager = el('div', { class: 'pager' });
+  card.append(wrap, pager);
+  /* FIX (expand / collapse): rows are now opened and closed in place. The old code rebuilt the whole table
+     (plus every open detail table) on each click, which froze the browser for several seconds on long tables /
+     "All rows", and "Expand all" only reached the current page. Now:
+       - "+" / "−" on a row inserts or removes only that row's detail;
+       - "Expand all" opens every row of the table (all pages, and pages you move to later), rendered in small
+         batches so the page never freezes; "Collapse all" closes everything instantly;
+       - detail tables are built once per row and cached; scroll position is kept. */
+  const st = { spec: null, page: 0, size: 25, open: new Set(), allOpen: false, sort: null, order: [], els: new Map(), cache: new Map(), job: 0 };
+  const sortedRows = () => {
+    const rows = st.spec.rows.map((r, i) => ({ r, i }));
+    if (st.sort) { const { col, dir } = st.sort; const t = st.spec.columns[col].type;
+      rows.sort((a, b) => { const x = a.r.sortVals?.[col] ?? a.r.cells[col], y = b.r.sortVals?.[col] ?? b.r.cells[col];
+        return (isNum(t) || typeof x === 'number' ? (x - y) : String(x).localeCompare(String(y), undefined, { numeric: true })) * dir; }); }
+    return rows;
+  };
+  const isOpen = i => st.allOpen ? !st.open.has(i) : st.open.has(i);   // in "all open" mode st.open holds the rows closed by hand
+  const setOpen = (i, v) => { if (st.allOpen ? !v : v) st.open.add(i); else st.open.delete(i); };
+  const openCount = () => st.allOpen ? st.spec.rows.filter(r => r.detail).length - st.open.size : st.open.size;
+  const setMeta = () => { const n = openCount(); meta.textContent = `${fInt(st.spec.rows.length)} rows` + (n ? ` · ${fInt(n)} expanded` : ''); };
+  const setBtn = (b, open) => { b.className = open ? 'open' : ''; b.textContent = open ? '−' : '+'; b.title = open ? 'Collapse' : 'Expand details'; };
+  function showDetail(i) {
+    const e = st.els.get(i); if (!e || e.det || !e.r.detail) return;
+    let d = st.cache.get(i); if (!d) { d = e.r.detail(); st.cache.set(i, d); }
+    e.det = detailRow(d, st.spec.columns.length + 1); e.tr.after(e.det); setBtn(e.btn, true);
+  }
+  function hideDetail(i) { const e = st.els.get(i); if (!e) return; if (e.det) { e.det.remove(); e.det = null; } if (e.btn) setBtn(e.btn, false); }
+  /* open the given rows a few at a time so a long table never blocks the browser */
+  function showMany(ids) {
+    const job = ++st.job; let k = 0;
+    const step = () => { if (job !== st.job) return; const end = Math.min(k + 12, ids.length);
+      for (; k < end; k++) if (isOpen(ids[k])) showDetail(ids[k]);
+      if (k < ids.length) requestAnimationFrame(step); };
+    step();
+  }
+  function draw(keepScroll = true) {
+    const { columns, total } = st.spec;
+    const sTop = wrap.scrollTop, sLeft = wrap.scrollLeft;
+    st.job++; st.els = new Map();
+    const all = sortedRows(); st.order = all;
+    const size = st.size || all.length || 1; const pages = Math.max(1, Math.ceil(all.length / size));
+    if (st.page >= pages) st.page = pages - 1;
+    const slice = all.slice(st.page * size, st.page * size + size);
+    const t = el('table'); const htr = el('tr', {}, el('th', { style: 'cursor:default' }));
+    columns.forEach((c, ci) => {
+      const ar = st.sort?.col === ci ? (st.sort.dir > 0 ? '▲' : '▼') : '';
+      htr.append(el('th', { class: isNum(c.type) ? 'num' : '', title: 'Click to sort', onclick: () => { st.sort = st.sort?.col === ci ? (st.sort.dir > 0 ? { col: ci, dir: -1 } : null) : { col: ci, dir: isNum(c.type) ? -1 : 1 }; draw(); } },
+        c.swatch ? el('span', { class: 'sw', style: `background:${c.swatch}` }) : null, c.label, el('span', { class: 'ar', text: ar })));
+    });
+    t.append(el('thead', {}, htr));
+    const tb = el('tbody');
+    for (const { r, i } of slice) {
+      let btn = null;
+      if (r.detail) { btn = el('button', { type: 'button' }); setBtn(btn, false);
+        btn.onclick = e => { e.stopPropagation(); const open = !isOpen(i); setOpen(i, open); open ? showDetail(i) : hideDetail(i); setMeta(); }; }
+      const tr = el('tr', {}, el('td', { class: 'tg' }, btn));
+      r.cells.forEach((v, ci) => tr.append(el('td', { class: isNum(columns[ci].type) ? 'num' : '', text: fmtCell(v, columns[ci].type) })));
+      tb.append(tr); st.els.set(i, { r, tr, btn, det: null });
+    }
+    if (total) { const tr = el('tr', { class: 'sum' }, el('td')); total.forEach((v, ci) => tr.append(el('td', { class: isNum(columns[ci].type) ? 'num' : '', text: fmtCell(v, columns[ci].type) }))); tb.append(tr); }
+    t.append(tb); wrap.replaceChildren(t);
+    showMany(slice.map(x => x.i).filter(isOpen));
+    if (keepScroll) { wrap.scrollTop = sTop; wrap.scrollLeft = sLeft; }
+    setMeta();
+    pager.innerHTML = '';
+    const sel = el('select'); [25, 50, 100, 0].forEach(n => sel.append(el('option', { value: n, text: n ? n + ' / page' : 'All rows' }))); sel.value = st.size;
+    sel.onchange = () => { st.size = +sel.value; st.page = 0; draw(false); };
+    pager.append(sel, el('span', { text: `Page ${st.page + 1} of ${pages}` }),
+      el('button', { type: 'button', text: '‹ Prev', onclick: () => { if (st.page > 0) { st.page--; draw(false); } } }),
+      el('button', { type: 'button', text: 'Next ›', onclick: () => { if (st.page < pages - 1) { st.page++; draw(false); } } }));
+    pager.classList.toggle('hidden', pages === 1 && all.length <= 25);
+    setTbl(tblIsHidden());
+  }
+  function detailRow(d, span) {
+    const LIM = 300; const t = el('table'); const htr = el('tr');
+    d.columns.forEach(c => htr.append(el('th', { class: isNum(c.type) ? 'num' : '', text: c.label })));
+    t.append(el('thead', {}, htr));
+    const tb = el('tbody');
+    d.rows.slice(0, LIM).forEach(row => { const tr = el('tr'); row.forEach((v, ci) => tr.append(el('td', { class: isNum(d.columns[ci].type) ? 'num' : '', text: fmtCell(v, d.columns[ci].type) }))); tb.append(tr); });
+    t.append(tb);
+    const note = el('div', { class: 'note', style: 'margin:0 0 6px', text: d.title + (d.rows.length > LIM ? ` — showing first ${LIM}; Export to Excel includes all ${fInt(d.rows.length)}.` : '') });
+    return el('tr', { class: 'detail' }, el('td', { colspan: span }, note, el('div', { style: 'overflow:auto;max-height:380px' }, t)));
+  }
+  bExp.onclick = e => { e.stopPropagation(); st.allOpen = true; st.open.clear(); setMeta(); showMany([...st.els.keys()]); };
+  bCol.onclick = e => { e.stopPropagation(); st.job++; st.allOpen = false; st.open.clear(); st.els.forEach((_, i) => hideDetail(i)); setMeta(); };
+  bXls.onclick = () => exportXlsx(st, exportName);
+  return {
+    update(spec, newTitle) { if (newTitle) ttl.textContent = newTitle; st.spec = spec; st.open.clear(); st.allOpen = false; st.cache.clear(); st.page = 0; draw(false); },
+    openRow(i) { st.sort = null; st.allOpen = false; st.open.clear(); st.open.add(i); const size = st.size || st.spec.rows.length; st.page = Math.floor(i / size); draw(false);
+      const e = st.els.get(i); (e ? e.tr : wrap).scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  };
+}
+function exportXlsx(st, name) {
+  const { columns, total, exportRecs } = st.spec;
+  const num = (v, t) => t === 'wt' ? +(+v).toFixed(3) : t === 'pct' ? +(+v).toFixed(2) : v;
+  const wb = XLSX.utils.book_new();
+  const aoa = [columns.map(c => c.label)];
+  st.order.forEach(({ r }) => aoa.push(r.cells.map((v, ci) => num(v, columns[ci].type))));
+  if (total) aoa.push(total.map((v, ci) => v === '' ? '' : num(v, columns[ci].type)));
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = columns.map(c => ({ wch: Math.max(10, Math.min(40, String(c.label).length + 4)) }));
+  XLSX.utils.book_append_sheet(wb, ws, 'Table');
+  const recs = exportRecs ? exportRecs() : null;
+  if (recs && recs.length) {
+    const d = recordDetail(recs);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([d.columns.map(c => c.label), ...d.rows.map(row => row.map((v, ci) => num(v, d.columns[ci].type)))]), 'Detail records');
+  }
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Source file', S.fileName], ['Sheets', [...S.f.sheets].join(', ')], ['Date filter', `${S.f.dateCol} ${fmtDate(S.f.from)} to ${fmtDate(S.f.to)}`],
+    ['Short Products', S.f.products.size === S.products.length ? 'All' : [...S.f.products].join(', ')], ['Exported', new Date().toLocaleString('en-IN')]]), 'Filters');
+  XLSX.writeFile(wb, `${name.replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '_')}_${isoDate(S.f.from)}_to_${isoDate(S.f.to)}.xlsx`);
+}
+
+/* =================== reusable chart cards =================== */
+/* Horizontal bar of groups (each bar = one item). Chips on the right hide bars; table follows. */
+function hbarCard(host, o) {
+  const card = cardShell(host, o.id, o.title, o.hint);
+  const slot = chartSlot(card);
+  const tbl = mountTable(card, o.tableTitle, o.exportName);
+  const hidden = new Set();
+  const draw = () => {
+    const all = o.items(); const items = all.filter(g => !hidden.has(g.key));
+    const tw = sumWt(items.flatMap(g => g.recs)), tt = items.reduce((a, g) => a + g.trips, 0);
+    card.setTotal(tw, tt);
+    /* FIX (Top N shares): shares are measured against o.shareBase (all filtered data) when given,
+       so "Share of Inv Wt" in the Top-N table equals the product's real share of total tonnage. */
+    const base = o.shareBase ? o.shareBase() : { wt: tw, trips: tt };
+    const sw = v => base.wt ? v / base.wt * 100 : 0, st = v => base.trips ? v / base.trips * 100 : 0;
+    /* plant-wise columns for Short-Product cards: Trips + MT for every sheet/plant found in the data */
+    const plantMode = !o.keyLabel;
+    const allRecs = items.flatMap(g => g.recs);
+    const plants = plantMode ? plantList(allRecs) : [];
+    const pm = items.map(g => byPlant(g.recs)), pTot = byPlant(allRecs);
+    const pOrder = o.measure === 'wt' ? ['wt', 'trips'] : ['trips', 'wt'];
+    const pCols = plants.flatMap(p => pOrder.map(f => ({ label: `${p} — ${f === 'wt' ? 'MT' : 'Trips'}`, type: f === 'wt' ? 'wt' : 'int' })));
+    const pCells = m => plants.flatMap(p => pOrder.map(f => m.get(p)?.[f] || 0));
+    drawChips(slot.legend, all.map(g => ({ key: g.key, label: g.key })), hidden, draw, false);
+    const opts = baseOptions();
+    opts.indexAxis = 'y'; opts.interaction = { mode: 'nearest', axis: 'y', intersect: false };
+    opts.layout.padding.right = 90;
+    opts.scales.x.grid = { color: cssVar('--grid') }; opts.scales.y.grid = { display: false };
+    opts.scales.x.ticks.callback = v => fInt(v); opts.scales.y.ticks = { color: cssVar('--text-secondary'), autoSkip: false };
+    opts.scales.x.title = axisTitle(o.measure === 'wt' ? 'Inv Wt — Σ Tonnage (MT)' : 'Trips — count of vehicles loaded');
+    opts.scales.y.title = axisTitle(o.axisLabel || 'Short Product');
+    opts.plugins.valueLabels = { enabled: true, format: v => o.measure === 'wt' ? fInt(v) + ' MT' : fInt(v) };
+    opts.plugins.tooltip.callbacks = {
+      title: it => items[it[0].dataIndex].key,
+      label: it => { const g = items[it.dataIndex]; return [
+        `Inv Wt: ${fWt(g.wt)} MT (${fPct(sw(g.wt))})`, `Trips: ${fInt(g.trips)} (${fPct(st(g.trips))})`,
+        `Avg load: ${fWt(g.wt / g.trips)} MT per trip`, `${S.f.dateCol}: ${fmtDate(g.min)} to ${fmtDate(g.max)}`, ...(o.extraTip ? o.extraTip(g) : []),
+        ...(plantMode ? plantTipLines(g.recs) : [])]; }
+    };
+    const color = cssVar(o.measure === 'wt' ? '--wt' : '--trips');
+    const h = Math.max(220, items.length * 30 + 70);
+    slot.set(h, { type: 'bar', data: { labels: items.map(g => g.key), datasets: [{ label: o.measure === 'wt' ? 'Inv Wt (MT)' : 'Trips', data: items.map(g => g[o.measure]), backgroundColor: color, borderRadius: 4, barPercentage: 0.72, categoryPercentage: 0.9 }] }, options: opts });
+    const columns = [{ label: '#', type: 'int' }, { label: o.keyLabel || 'Short Product', type: 'text' }, { label: 'Inv Wt (MT)', type: 'wt' }, { label: 'Trips', type: 'int' }, { label: 'Share of Inv Wt', type: 'pct' }, { label: 'Share of trips', type: 'pct' }, { label: 'Avg MT / Trip', type: 'wt' }, { label: 'First date', type: 'text' }, { label: 'Last date', type: 'text' }, ...pCols];
+    const rows = items.map((g, i) => ({ cells: [i + 1, g.key, g.wt, g.trips, sw(g.wt), st(g.trips), g.wt / g.trips, fmtDate(g.min), fmtDate(g.max), ...pCells(pm[i])], sortVals: { 7: g.min, 8: g.max },
+      detail: () => o.detail ? o.detail(g) : recordDetail(g.recs) }));
+    tbl.update({ columns, rows, total: ['', 'Total', tw, tt, sw(tw), st(tt), tt ? tw / tt : 0, '', '', ...pCells(pTot)], exportRecs: () => items.flatMap(g => g.recs) });
+  };
+  draw();
+}
+
+/* Simple vertical bars per period (one colour, value on top). */
+function periodTotalCard(host, o) {
+  const P = o.P; const card = cardShell(host, o.id, o.title, o.hint);
+  const slot = chartSlot(card);
+  const groups = [...aggregate(S.F, r => P.key(r.day)).values()].sort((a, b) => a.key - b.key);
+  const meta = groups.map(g => { const m = [...aggregate(g.recs, r => r.product).values()].sort(byWtDesc); return { m, top: m[0] }; });
+  const isDay = P === PERIODS.day, isWeek = P === PERIODS.week;
+  card.setTotal(sumWt(S.F), sumTrips(S.F));
+  const opts = baseOptions();
+  opts.scales.y.title = axisTitle('Inv Wt — Σ Tonnage (MT)');
+  opts.scales.x.title = axisTitle(isWeek ? 'Week dates (Monday – Sunday)' : P.name);
+  opts.plugins.valueLabels = { enabled: groups.length <= 31, format: v => fInt(v) };
+  opts.plugins.tooltip.callbacks = {
+    title: it => { const g = groups[it[0].dataIndex]; return isDay ? `${dayName(g.key)}, ${fmtDate(g.key)}` : isWeek ? `Week: ${weekRange(g.key)} (Monday – Sunday)` : P.label(g.key); },
+    label: it => { const g = groups[it.dataIndex], x = meta[it.dataIndex]; return [
+      `Inv Wt: ${fWt(g.wt)} MT`, `Trips: ${fInt(g.trips)}  ·  Avg ${fWt(g.wt / g.trips)} MT/trip`,
+      `Short Products loaded: ${x.m.length}`, `Biggest: ${x.top.key} (${fWt(x.top.wt)} MT)`]; }
+  };
+  slot.set(isDay ? 320 : 330, { type: 'bar', data: { labels: groups.map(g => P.short(g.key)), datasets: [{ label: 'Inv Wt (MT)', data: groups.map(g => g.wt), backgroundColor: cssVar('--wt'), borderRadius: 4, categoryPercentage: 0.8, barPercentage: 0.9 }] }, options: opts });
+  const tbl = mountTable(card, o.tableTitle, o.exportName);
+  const info = periodInfoCols(P);
+  const columns = [{ label: P.name, type: 'text' }, ...info.map(c => ({ label: c.label, type: c.type })), { label: 'Inv Wt (MT)', type: 'wt' }, { label: 'Trips', type: 'int' }, { label: 'Avg MT / Trip', type: 'wt' }, { label: 'Short Products', type: 'int' }, { label: 'Biggest Short Product', type: 'text' }, { label: 'Its Inv Wt (MT)', type: 'wt' }];
+  const rows = groups.map((g, i) => ({ cells: [P.label(g.key), ...info.map(c => c.f(g)), g.wt, g.trips, g.wt / g.trips, meta[i].m.length, meta[i].top.key, meta[i].top.wt], sortVals: { 0: g.key }, detail: () => productDetail(g.recs, P.label(g.key)) }));
+  const tw = sumWt(S.F), tt = sumTrips(S.F);
+  tbl.update({ columns, rows, total: ['Total', ...info.map(() => ''), tw, tt, tt ? tw / tt : 0, S.prodAgg.length, '', ''], exportRecs: () => S.F });
+}
+function periodInfoCols(P) {
+  if (P === PERIODS.day) return [{ label: 'Day', type: 'text', f: g => dayName(g.key) }];
+  if (P === PERIODS.week) return [{ label: 'Week dates', type: 'text', f: g => weekRange(g.key) }];
+  return [{ label: 'Data from', type: 'text', f: g => fmtDate(g.min) }, { label: 'Data to', type: 'text', f: g => fmtDate(g.max) }];
+}
+
+/* Stacked bars by product per period (monthly / weekly). measure: 'trips' | 'wt' */
+function stackedCard(host, o) {
+  const P = o.P, measure = o.measure; const card = cardShell(host, o.id, o.title, o.hint);
+  const slot = chartSlot(card); const tbl = mountTable(card, o.tableTitle, o.exportName);
+  const hidden = new Set(); const isWeek = P === PERIODS.week;
+  const draw = () => {
+    const F = S.F.filter(r => !hidden.has(seriesKey(r.product)));
+    card.setTotal(sumWt(F), sumTrips(F));
+    const groups = [...aggregate(S.F, r => P.key(r.day)).values()].sort((a, b) => a.key - b.key);
+    const keys = S.series.slice(); if (S.otherProducts.length) keys.push(OTHER);
+    drawChips(slot.legend, keys.map(k => ({ key: k, label: seriesLabel(k), color: seriesColor(k) })), hidden, draw, true);
+    const cells = groups.map(g => aggregate(g.recs, r => seriesKey(r.product)));
+    const vis = groups.map((g, i) => { let wt = 0, trips = 0; keys.forEach(k => { if (!hidden.has(k)) { wt += cells[i].get(k)?.wt || 0; trips += cells[i].get(k)?.trips || 0; } }); return { wt, trips }; });
+    const datasets = keys.map(k => ({
+      label: seriesLabel(k), _key: k, hidden: hidden.has(k),
+      data: cells.map(m => m.get(k)?.[measure] || 0), _wt: cells.map(m => m.get(k)?.wt || 0), _trips: cells.map(m => m.get(k)?.trips || 0),
+      _prods: k === OTHER ? cells.map(m => { const g = m.get(OTHER); return g ? [...new Set(g.recs.map(r => r.product))] : []; }) : null,
+      backgroundColor: seriesColor(k), borderColor: cssVar('--surface-card'), borderWidth: { top: 1, bottom: 0, left: 0, right: 0 }, borderRadius: 2, stack: 's', categoryPercentage: 0.8, barPercentage: 0.9
+    }));
+    const opts = baseOptions();
+    opts.scales.x.stacked = true; opts.scales.y.stacked = true;
+    opts.scales.y.title = axisTitle(measure === 'wt' ? 'Inv Wt — Σ Tonnage (MT)' : 'Trips — vehicles loaded');
+    opts.scales.x.title = axisTitle(isWeek ? 'Week dates (Monday – Sunday)' : P.name);
+    opts.plugins.valueLabels = { enabled: groups.length <= 31, stackTotals: true, format: v => fInt(v) };
+    opts.plugins.tooltip.filter = it => it.raw > 0;
+    opts.plugins.tooltip.itemSort = (a, b) => b.raw - a.raw;
+    opts.plugins.tooltip.callbacks = {
+      title: items => { const g = groups[items[0].dataIndex]; return isWeek ? `Week: ${weekRange(g.key)} (Monday – Sunday)` : `${P.label(g.key)} (${fmtDate(g.min)} to ${fmtDate(g.max)})`; },
+      label: it => { const d = it.dataset, i = it.dataIndex, v = vis[i];
+        return measure === 'trips' ? `${d.label}: ${fInt(d._trips[i])} trips (${fPct(v.trips ? d._trips[i] / v.trips * 100 : 0)}) · ${fWt(d._wt[i])} MT`
+          : `${d.label}: ${fWt(d._wt[i])} MT (${fPct(v.wt ? d._wt[i] / v.wt * 100 : 0)}) · ${fInt(d._trips[i])} trips`; },
+      afterLabel: it => { const p = it.dataset._prods?.[it.dataIndex]; return p && p.length ? '   Includes: ' + p.slice(0, 8).join(', ') + (p.length > 8 ? ` +${p.length - 8} more` : '') : ''; },
+      footer: items => { const v = vis[items[0].dataIndex]; return `Total: ${fWt(v.wt)} MT · ${fInt(v.trips)} trips`; }
+    };
+    slot.set(360, { type: 'bar', data: { labels: groups.map(g => isWeek ? P.label(g.key).replace(/-\d{2}(\d{2})$/, " '$1") : P.short(g.key)), datasets }, options: opts });
+    o.table(tbl, F);
+  };
+  draw();
+  if (S.otherProducts.length) card.append(el('p', { class: 'note', text: `The ${S.series.length} heaviest Short Products are shown in their own colour; ${S.otherProducts.length} smaller ones are grouped as “Other”. The table lists every product. Use the × buttons to hide a product — the table follows.` }));
+}
+/* pivot table: period rows × product trip counts */
+const pivotTripsTable = (P, label) => (tbl, F) => {
+  const prods = [...aggregate(F, r => r.product).values()].sort((a, b) => b.trips - a.trips || b.wt - a.wt);
+  const groups = [...aggregate(F, r => P.key(r.day)).values()].sort((a, b) => a.key - b.key);
+  const info = periodInfoCols(P);
+  const columns = [{ label: P.name, type: 'text' }, ...info.map(c => ({ label: c.label, type: c.type })), ...prods.map(p => ({ label: p.key, type: 'int', swatch: seriesColor(seriesKey(p.key)) })), { label: 'Total trips', type: 'int' }, { label: 'Total Inv Wt (MT)', type: 'wt' }];
+  const rows = groups.map(g => { const m = aggregate(g.recs, r => r.product);
+    return { cells: [P.label(g.key), ...info.map(c => c.f(g)), ...prods.map(p => m.get(p.key)?.trips || 0), g.trips, g.wt], sortVals: { 0: g.key }, detail: () => productDetail(g.recs, P.label(g.key)) }; });
+  tbl.update({ columns, rows, total: ['Total', ...info.map(() => ''), ...prods.map(p => p.trips), sumTrips(F), sumWt(F)], exportRecs: () => F });
+};
+/* long table: period × product with Inv Wt */
+const longWtTable = P => (tbl, F) => {
+  const groups = [...aggregate(F, r => P.key(r.day)).values()].sort((a, b) => a.key - b.key);
+  const info = periodInfoCols(P);
+  const columns = [{ label: P.name, type: 'text' }, ...info.map(c => ({ label: c.label, type: c.type })), { label: 'Short Product', type: 'text' }, { label: 'Inv Wt (MT)', type: 'wt' }, { label: 'Trips', type: 'int' }, { label: `Share of ${P.name.toLowerCase()}`, type: 'pct' }, { label: 'Avg MT / Trip', type: 'wt' }];
+  const rows = [];
+  groups.forEach(g => [...aggregate(g.recs, r => r.product).values()].sort(byWtDesc).forEach(p => rows.push({
+    cells: [P.label(g.key), ...info.map(c => c.f(g)), p.key, p.wt, p.trips, p.wt / g.wt * 100, p.wt / p.trips], sortVals: { 0: g.key }, detail: () => recordDetail(p.recs) })));
+  const tw = sumWt(F), tt = sumTrips(F);
+  tbl.update({ columns, rows, total: ['Total', ...info.map(() => ''), '', tw, tt, 100, tt ? tw / tt : 0], exportRecs: () => F });
+};
+
+/* =================== HOME =================== */
+function renderHome(host) {
+  const F = S.F, tw = sumWt(F), tt = sumTrips(F), top = S.prodAgg[0];
+  const sheetsIn = [...new Set(F.map(r => r.sheet))];
+  const days = S.days.length;
+  const kpis = [
+    { label: 'Total Inv Wt (tonnage)', value: fInt(tw), unit: 'MT', sub: `across ${plural(sheetsIn.length, 'sheet', 'sheets')}` },
+    { label: 'Total trips (vehicles loaded)', value: fInt(tt), sub: `${fInt(F.length)} loading records` },
+    { label: 'Average load per trip', value: nf1.format(tt ? tw / tt : 0), unit: 'MT', sub: `${nf1.format(days ? tw / days : 0)} MT per loading day` },
+    { label: 'Short Products', value: fInt(S.prodAgg.length), sub: S.prodAgg.slice(0, 4).map(g => g.key).join(' · ') },
+    { label: 'Top Short Product', value: top.key, sub: `${fInt(top.wt)} MT · ${fPct(top.wt / tw * 100)} of total` },
+    { label: 'Loading days', value: fInt(days), sub: `${fmtDate(S.days[0])} → ${fmtDate(S.days[days - 1])}` }
+  ];
+  host.append(el('div', { class: 'kpi-row' }, kpis.map(k => el('div', { class: 'kpi', title: `${k.label}: ${k.value} ${k.unit || ''}` },
+    el('div', { class: 'label', text: k.label }), el('div', { class: 'value' }, k.value, k.unit ? el('span', { class: 'unit', text: k.unit }) : null), el('div', { class: 'sub', text: k.sub })))));
+  hbarCard(host, { id: 'h-wt', title: 'Inv Wt (Tonnage) by Short Product', hint: 'Blue bars = tonnage. Longest bar = most tonnes loaded.', measure: 'wt',
+    items: () => S.prodAgg, tableTitle: 'Inv Wt by Short Product — table data', exportName: 'Inv Wt by Short Product' });
+  hbarCard(host, { id: 'h-trips', title: 'Trips by Short Product', hint: 'Orange bars = vehicles loaded (unique Shipment No + Vehicle No) for each Short Product. Hover a bar or scroll the table right for plant-wise values.', measure: 'trips',
+    items: () => S.prodAgg.slice().sort((a, b) => b.trips - a.trips), tableTitle: 'Trips by Short Product — table data', exportName: 'Trips by Short Product' });
+  periodTotalCard(host, { id: 'h-month', P: PERIODS.month, title: 'Monthly Inv Wt (Tonnage) Trend', hint: 'Total tonnes loaded each month. Hover a bar to see the biggest product.',
+    tableTitle: 'Monthly Inv Wt — table data', exportName: 'Monthly Inv Wt Trend' });
+  hbarCard(host, { id: 'h-sheet', title: 'Inv Wt (Tonnage) by Sheet / Plant', hint: 'Each bar is one sheet (plant) of the uploaded workbook.', measure: 'wt', keyLabel: 'Sheet', axisLabel: 'Sheet (plant)',
+    items: () => [...aggregate(S.F, r => r.sheet).values()].sort(byWtDesc),
+    extraTip: g => [`Short Products: ${[...new Set(g.recs.map(r => r.product))].slice(0, 6).join(', ')}`],
+    detail: g => productDetail(g.recs, g.key), tableTitle: 'Inv Wt by Sheet — table data', exportName: 'Inv Wt by Sheet' });
+  hbarCard(host, { id: 'h-sheet-trips', title: 'Trips by Sheet / Plant', hint: 'Vehicles loaded (unique Shipment No + Vehicle No) in each sheet (plant). Click + on a row to see its Short Products.', measure: 'trips', keyLabel: 'Sheet', axisLabel: 'Sheet (plant)',
+    items: () => [...aggregate(S.F, r => r.sheet).values()].sort((a, b) => b.trips - a.trips),
+    extraTip: g => ['', 'Short Products:', ...[...aggregate(g.recs, r => r.product).values()].sort((a, b) => b.trips - a.trips).slice(0, 8).map(p => `  • ${p.key}: ${fInt(p.trips)} trips`)],
+    detail: g => productDetail(g.recs, g.key), tableTitle: 'Trips by Sheet — table data', exportName: 'Trips by Sheet' });
+}
+
+/* =================== TOP =================== */
+function renderTop(host) {
+  const sel = el('select'); [5, 10, 15, 20, 0].forEach(n => sel.append(el('option', { value: n, text: n ? `Top ${n}` : 'All products' }))); sel.value = S.topN;
+  sel.onchange = () => { S.topN = +sel.value; renderAll(); };
+  host.append(el('div', { class: 'controls', style: 'margin:0 0 16px' }, el('span', { class: 'ctl' }, 'Show', sel)));
+  const n = S.topN, items = n ? S.prodAgg.slice(0, n) : S.prodAgg, totAll = sumWt(S.F);
+  hbarCard(host, { id: 'top', title: `Top ${n ? Math.min(n, S.prodAgg.length) : S.prodAgg.length} Short Products by Inv Wt (Tonnage)`, hint: 'Ranked from the highest tonnage. Hover a bar for trips, share and dates.', measure: 'wt',
+    items: () => items, shareBase: () => ({ wt: totAll, trips: sumTrips(S.F) }), extraTip: g => [`Share of all tonnage: ${fPct(g.wt / totAll * 100)}`, `Sheets: ${[...new Set(g.recs.map(r => r.sheet))].join(', ')}`],
+    tableTitle: 'Top Short Products — table data', exportName: 'Top Short Products' });
+}
+
+/* =================== MONTHLY / WEEKLY =================== */
+function renderPeriodTab(P, label) {
+  const host = $('#spContent'); const pre = label[0].toLowerCase();
+  if (label === 'Weekly') {
+    host.append(el('div', { class: 'headline', style: 'margin:-4px 0 18px' },
+      el('b', { text: 'How to read the weekly report: ' }),
+      'Each bar is one full week from Monday to Sunday. The graph now shows the actual date range (for example, 07 – 13 Sep 2026) instead of labels such as W37 or W26.'
+    ));
+  }
+  host.append(el('div', { class: 'subnav' }, [['prod', 'Short Product report'], ['wt', 'Inv Wt report'], ['combo', 'Short Product & Inv Wt report']].map(([k, t]) => el('a', { href: `#${pre}-${k}`, text: `${label} ${t}` }))));
+  stackedCard(host, { id: `${pre}-prod`, P, measure: 'trips', title: `${label} Short Product Report`, hint: label === 'Weekly' ? 'Each bar = one Monday-to-Sunday week. The date range is written below the bar; the number on top is the total vehicles loaded that week.' : `Trips (vehicles loaded) for each Short Product, ${label.toLowerCase()}. The number on top is the ${P.name.toLowerCase()} total.`, 
+    tableTitle: `${label} Short Product report — trips per Short Product`, exportName: `${label} Short Product Report`, table: pivotTripsTable(P, label) });
+  periodTotalCard(host, { id: `${pre}-wt`, P, title: `${label} Inv Wt (Tonnage) Report`, hint: `Total tonnes loaded each ${P.name.toLowerCase()}. Expand a table row to see every Short Product in it.`,
+    tableTitle: `${label} Inv Wt report — table data`, exportName: `${label} Inv Wt Report` });
+  stackedCard(host, { id: `${pre}-combo`, P, measure: 'wt', title: `${label} Short Product & Inv Wt Report`, hint: `Tonnage of each Short Product, ${label.toLowerCase()}. The number on top is the ${P.name.toLowerCase()} total in MT.`,
+    tableTitle: `${label} Short Product & Inv Wt report — each product with its tonnage`, exportName: `${label} Short Product and Inv Wt Report`, table: longWtTable(P) });
+}
+
+/* =================== DAILY: one simple graph =================== */
+function renderDaily(host) {
+  const card = cardShell(host, 'daily', 'Daily Loading Report',
+    'One bar = one day. Taller bar = more loaded that day. Hover a bar to see every Short Product loaded that day; click a bar to open that day in the table.');
+  const st = { range: 14, measure: 'wt', product: '' };
+  const mkSeg = (opts, key) => {
+    const seg = el('div', { class: 'seg' });
+    opts.forEach(([v, t]) => seg.append(el('button', { type: 'button', 'data-v': v, text: t, onclick: () => { st[key] = v; draw(); } })));
+    return seg;
+  };
+  const segRange = mkSeg([[7, 'Last 7 days'], [14, 'Last 14 days'], [30, 'Last 30 days'], [0, 'All days']], 'range');
+  const segMeasure = mkSeg([['wt', 'Tonnage (MT)'], ['trips', 'Vehicles']], 'measure');
+  const prodSel = el('select'); prodSel.append(el('option', { value: '', text: 'All Short Products' }));
+  S.prodAgg.forEach(g => prodSel.append(el('option', { value: g.key, text: g.key })));
+  prodSel.onchange = () => { st.product = prodSel.value; draw(); };
+  card.append(el('div', { class: 'controls' }, segRange, segMeasure, el('span', { class: 'ctl' }, 'Product', prodSel)));
+  const headline = el('div', { class: 'headline' }); card.append(headline);
+  const key = el('div', { class: 'legend-key' }); card.append(key);
+  const slot = chartSlot(card);
+  const tbl = mountTable(card, '', 'Daily Loading Report');
+
+  function draw() {
+    segRange.querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.v === st.range));
+    segMeasure.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === st.measure));
+    const isWt = st.measure === 'wt';
+    const recs = st.product ? S.F.filter(r => r.product === st.product) : S.F;
+    let days = [...aggregate(recs, r => r.day).values()].sort((a, b) => a.key - b.key);
+    if (st.range) days = days.slice(-st.range);
+    const parts = days.map(d => [...aggregate(d.recs, r => r.product).values()].sort(byWtDesc));
+    const vals = days.map(d => isWt ? d.wt : d.trips);
+    const tw = days.reduce((a, d) => a + d.wt, 0), tt = days.reduce((a, d) => a + d.trips, 0);
+    const avg = days.length ? vals.reduce((a, v) => a + v, 0) / days.length : 0;
+    card.setTotal(tw, tt);
+    const unit = v => isWt ? `${fInt(v)} MT` : `${fInt(v)} vehicles`;
+    const what = st.product ? `<b>${esc(st.product)}</b>` : 'all Short Products';
+    if (!days.length) { headline.innerHTML = `No loading found for ${what} in the selected dates.`; }
+    else {
+      const pos = vals.filter(v => v > 0); const iMax = vals.indexOf(Math.max(...vals)), iMin = vals.indexOf(pos.length ? Math.min(...pos) : 0);
+      const span = st.range ? `In the last <b>${plural(days.length, 'loading day', 'loading days')}</b>` : `Across <b>${plural(days.length, 'loading day', 'loading days')}</b>`;
+      headline.innerHTML = `${span} (${fmtDate(days[0].key)} to ${fmtDate(days[days.length - 1].key)}), ${what}: <b>${fInt(tt)} vehicles</b> loaded <b>${fWt(tw)} MT</b>.` +
+        ` Daily average: <b>${unit(avg)}</b>. Busiest day: <b>${dayName(days[iMax].key)}, ${fmtDate(days[iMax].key)}</b> (${unit(vals[iMax])}).` +
+        (days.length > 1 ? ` Lowest day: <b>${dayName(days[iMin].key)}, ${fmtDate(days[iMin].key)}</b> (${unit(vals[iMin])}).` : '');
+    }
+    const color = cssVar(isWt ? '--wt' : '--trips');
+    key.innerHTML = `<span><i style="background:${color}"></i>${isWt ? 'Tonnes loaded that day' : 'Vehicles loaded that day'}</span>` +
+      `<span><i style="background:none;border-top:2px dashed ${cssVar('--text-muted')};height:0;border-radius:0;width:18px"></i>Daily average (${unit(avg)})</span>`;
+
+    const opts = baseOptions();
+    opts.interaction = { mode: 'index', intersect: false };
+    opts.scales.y.title = axisTitle(isWt ? 'Inv Wt — tonnes loaded (MT)' : 'Trips — vehicles loaded');
+    opts.scales.x.title = axisTitle('Date');
+    opts.scales.x.ticks.autoSkip = days.length > 31;
+    opts.plugins.valueLabels = { enabled: days.length <= 31, format: v => fInt(v) };
+    opts.plugins.tooltip.filter = it => it.datasetIndex === 0;
+    opts.plugins.tooltip.callbacks = {
+      title: it => { const d = days[it[0].dataIndex]; return `${dayName(d.key)}, ${fmtDate(d.key)}`; },
+      label: it => { const d = days[it.dataIndex]; return [`Total: ${fWt(d.wt)} MT · ${fInt(d.trips)} vehicles`, `Avg load: ${fWt(d.wt / d.trips)} MT per vehicle`]; },
+      afterBody: it => { const p = parts[it[0].dataIndex]; if (st.product) return [];
+        return ['', 'Short Products loaded:', ...p.slice(0, 12).map(g => `  • ${g.key}: ${fInt(g.trips)} vehicles · ${fWt(g.wt)} MT`), ...(p.length > 12 ? [`  + ${p.length - 12} more (see table)`] : [])]; }
+    };
+    opts.onClick = (_e, els) => { if (els.length) tbl.openRow(els[0].index); };
+    opts.onHover = (e, els) => { e.native.target.style.cursor = els.length ? 'pointer' : 'default'; };
+    const labels = days.map(d => days.length <= 14 ? [PERIODS.day.short(d.key), dayName(d.key)] : PERIODS.day.short(d.key));
+    slot.set(360, { type: 'bar', data: { labels, datasets: [
+      { label: isWt ? 'Inv Wt (MT)' : 'Vehicles', data: vals, backgroundColor: color, borderRadius: 4, categoryPercentage: 0.75, barPercentage: 0.9, order: 2 },
+      { type: 'line', label: 'Daily average', data: days.map(() => avg), borderColor: cssVar('--text-muted'), borderDash: [6, 5], borderWidth: 2, pointRadius: 0, pointHoverRadius: 0, order: 1 }
+    ] }, options: opts });
+
+    const columns = [{ label: 'Date', type: 'text' }, { label: 'Day', type: 'text' }, { label: 'Vehicles (trips)', type: 'int' }, { label: 'Inv Wt (MT)', type: 'wt' }, { label: 'Avg MT / vehicle', type: 'wt' }, { label: 'Short Products', type: 'int' }, { label: 'Biggest Short Product', type: 'text' }, { label: 'Its Inv Wt (MT)', type: 'wt' }];
+    const rows = days.map((d, i) => ({ cells: [fmtDate(d.key), dayName(d.key), d.trips, d.wt, d.wt / d.trips, parts[i].length, parts[i][0].key, parts[i][0].wt], sortVals: { 0: d.key },
+      detail: () => productDetail(d.recs, `${fmtDate(d.key)} (${dayName(d.key)})`) }));
+    tbl.update({ columns, rows, total: ['Total', '', tt, tw, tt ? tw / tt : 0, new Set(days.flatMap(d => d.recs.map(r => r.product))).size, '', ''], exportRecs: () => days.flatMap(d => d.recs) },
+      `Daily Loading Report — ${st.product || 'all Short Products'} — table data (click + to see the Short Products of each day)`);
+  }
+  draw();
+}
+
+
+window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', () => { if (S.active) renderAll(); });
+
+/* =================== public API used by the shared app shell =================== */
+window.SPDash = {
+  tabs: TABS.map(t => ({ id: t.id, label: t.label, title: t.title, sub: t.sub })),
+  load(wb, fileName) {
+    try { return parseWorkbook(wb, fileName); }
+    catch (e) { console.error(e); return { ok: false, error: e.message || 'Could not read the Short Product data.' }; }
+  },
+  show(tab) { S.active = true; if (tab) S.tab = tab; renderAll(); },
+  hide() { S.active = false; clearTimeout(renderTimer); destroyCharts(); $('#spContent').innerHTML = ''; document.querySelectorAll('#spView .dd.open').forEach(d => d.classList.remove('open')); },
+  reset() { this.hide(); S.recs = []; S.sheets = []; S.products = []; S.fileName = ''; S.tab = 'home'; },
+  info() { return { fileName: S.fileName, sheets: S.sheets.length, rows: S.recs.length, skipped: S.skipped }; }
+};
+})();
+</script>
+
+<script>
+/* ======================================================================
+   MODULE 1 — PLANT-WISE DISPATCH REPORTS + SHARED APP SHELL
+   (from "Loading Reports Dashboard.html")
+   ====================================================================== */
 (function(){
 "use strict";
 let DATA = null;          // the aggregate currently driving every report — reflects the active filters
@@ -1679,7 +2680,11 @@ const ICONS = {
   billing: '<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/>',
   customer: '<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6.2 6.5-6.2s6.5 2.6 6.5 6.2"/><circle cx="18" cy="9" r="2.4"/><path d="M15.6 13.6c2.6.4 4.4 2.5 4.4 5.4"/>',
   special: '<path d="M12 2l2.4 5.3 5.8.6-4.3 4 1.2 5.7L12 14.9 6.9 17.6l1.2-5.7-4.3-4 5.8-.6z"/>',
-  ownership: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 5v14M16 5v14"/>'
+  ownership: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 5v14M16 5v14"/>',
+  rank: '<path d="M4 6h10M4 12h16M4 18h7"/>',
+  month: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',
+  day: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><rect x="10" y="12" width="4" height="4" rx=".6"/>',
+  week: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M6 14h12"/>'
 };
 function iconSvg(key){ return `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]}</svg>`; }
 
@@ -2336,6 +3341,65 @@ REPORTS.forEach((r,i)=>{
   btn.addEventListener('click', ()=> selectReport(r.id, true));
   railNav.appendChild(btn);
 });
+const spGroup = el('div','rail-eyebrow group','Short Product &amp; Tonnage');
+railNav.appendChild(spGroup);
+const SP_ICONS = { home:'product', top:'rank', monthly:'month', daily:'day', weekly:'week' };
+(window.SPDash ? window.SPDash.tabs : []).forEach((t,i)=>{
+  const btn = el('button','rail-item');
+  btn.dataset.id = 'sp:'+t.id;
+  btn.dataset.search = (t.label+' '+t.title+' '+t.sub+' short product tonnage').toLowerCase();
+  btn.innerHTML = `<span class="num">${String(REPORTS.length+i+1).padStart(2,'0')}</span>${iconSvg(SP_ICONS[t.id]||'product')}<span class="lbl">${t.label}</span>`;
+  btn.addEventListener('click', ()=> selectSP(t.id));
+  railNav.appendChild(btn);
+});
+
+/* ---------------- which modules could read the uploaded file ---------------- */
+let MODULES = { dispatch:false, sp:false, dispatchErr:'', spErr:'' };
+function markAvailability(){
+  document.querySelectorAll('.rail-item').forEach(b=>{
+    const isSp = b.dataset.id.startsWith('sp:');
+    const ok = isSp ? MODULES.sp : MODULES.dispatch;
+    b.classList.toggle('unavailable', !ok);
+    b.title = ok ? '' : 'Not available for this file — click to see why';
+  });
+}
+function showView(v){
+  document.getElementById('dispatchView').hidden = v!=='dispatch';
+  document.getElementById('spView').hidden = v!=='sp';
+  if(v!=='sp' && window.SPDash) window.SPDash.hide();
+  if(v!=='dispatch'){ destroyCharts(); contentInner.innerHTML=''; if(typeof closeCalendar==='function') closeCalendar(); }
+  updateTopbarHeight();
+}
+function showUnavailable(which, id){
+  currentId = id;
+  document.querySelectorAll('.rail-item').forEach(b=> b.classList.toggle('active', b.dataset.id===id));
+  showView('dispatch');
+  filterBarEl.classList.remove('show');
+  const isSp = which==='sp';
+  reportTitleEl.textContent = isSp ? 'Short Product & Tonnage reports' : 'Dispatch reports';
+  reportSubtitleEl.textContent = 'Not available for this file';
+  topbarMetaEl.textContent = '';
+  contentInner.innerHTML = '';
+  const c = el('div','unavail-card');
+  c.innerHTML = `<h3>${isSp ? 'Short Product &amp; Tonnage reports' : 'Plant-wise Dispatch reports'} could not be built from this file</h3>`+
+    `<p>${isSp ? 'These reports need sheets with a <b>Short Product</b> column and an <b>Inv Wt</b> column, plus at least one date column.' : 'These reports need the columns <b>Vehicle No</b>, <b>Inv Wt</b> and <b>Shipment Date</b> in the first row of each sheet.'} The other reports in the menu still work.</p>`+
+    `<div class="why"><b>Reason:</b> ${isSp ? esc(MODULES.spErr||'Unknown') : (MODULES.dispatchErr||'Unknown')}</div>`;
+  contentInner.appendChild(c);
+  contentInner.classList.add('ready');
+  closeRailOnMobile();
+}
+function selectSP(tab){
+  const id = 'sp:'+tab;
+  if(!MODULES.sp){ showUnavailable('sp', id); return; }
+  if(id===currentId){ closeRailOnMobile(); return; }
+  currentId = id;
+  document.querySelectorAll('.rail-item').forEach(b=> b.classList.toggle('active', b.dataset.id===id));
+  showView('sp');
+  window.scrollTo(0,0);
+  window.SPDash.show(tab);
+  updateTopbarHeight();
+  closeRailOnMobile();
+}
 
 const contentInner = document.getElementById('contentInner');
 const reportTitleEl = document.getElementById('reportTitle');
@@ -2356,7 +3420,15 @@ function skeleton(){
 function selectReport(id, userInitiated){
   const report = REPORTS.find(r=>r.id===id);
   if(!report || id===currentId){ closeRailOnMobile(); return; }
+  if(!MODULES.dispatch){ showUnavailable('dispatch', id); return; }
+  const wasOtherView = document.getElementById('dispatchView').hidden || !DATA;
   currentId = id;
+  if(wasOtherView || !filterBarEl.classList.contains('show')){
+    showView('dispatch');
+    renderFilterBar();
+    topbarMetaEl.textContent = DATA.meta.dateMin + ' → ' + DATA.meta.dateMax;
+    window.scrollTo(0,0);
+  }
   document.querySelectorAll('.rail-item').forEach(b=> b.classList.toggle('active', b.dataset.id===id));
   reportTitleEl.textContent = report.title;
   reportSubtitleEl.textContent = report.subtitle;
@@ -2368,6 +3440,7 @@ function selectReport(id, userInitiated){
   contentInner.classList.add('ready');
 
   setTimeout(()=>{
+    if(currentId!==id) return;   // user already moved to another report
     destroyCharts();
     contentInner.innerHTML = '';
     try{
@@ -2402,8 +3475,9 @@ function closeRailOnMobile(){ rail.classList.remove('open'); scrim.classList.rem
 
 /* ---------------- theme change → re-render live charts ---------------- */
 function rerenderForTheme(){
-  if(!currentId) return;
+  if(!currentId || !DATA) return;
   const report = REPORTS.find(r=>r.id===currentId);
+  if(!report) return;   // Short Product pages redraw themselves
   destroyCharts();
   contentInner.innerHTML = '';
   report.render(contentInner);
@@ -2582,8 +3656,7 @@ function plantBreakdown(records, catFn, valFn, cats, plants, decimals){
   });
 }
 
-async function parseWorkbookFile(file){
-  const buf = await file.arrayBuffer();
+function parseWorkbookRecords(wb){
   // cellDates:true is intentionally NOT used here: SheetJS constructs its
   // epoch reference date with the LOCAL Date constructor, so in any browser
   // whose timezone isn't UTC it silently shifts every parsed date back by
@@ -2592,7 +3665,6 @@ async function parseWorkbookFile(file){
   // decoding them ourselves in toDate() via XLSX.SSF.parse_date_code (pure
   // {y,m,d} arithmetic, no epoch Date object, no timezone dependence) gives
   // the correct calendar date in every timezone.
-  const wb = XLSX.read(buf, {type:'array'});
   const records = [];
   const headerMap = {}; // canonical field -> literal header text exactly as it appears in THIS workbook
   for(const sn of wb.SheetNames){
@@ -3032,10 +4104,21 @@ function showApp(){
   document.getElementById('uploadScreen').style.display = 'none';
   document.getElementById('boot-loader').style.display = 'none';
   updateTopbarHeight();
-  applyMetaToShell();
-  renderFilterBar();
   currentId = null;
-  selectReport('plant', false);
+  markAvailability();
+  if(MODULES.dispatch){
+    applyMetaToShell();
+    showView('dispatch');
+    renderFilterBar();
+    selectReport('plant', false);
+  }else{
+    const i = window.SPDash.info();
+    document.getElementById('railFy').textContent = 'Dispatch Analytics';
+    document.getElementById('railSourceFile').textContent = i.fileName || 'Uploaded workbook';
+    document.getElementById('railSourceMeta').textContent = i.sheets + (i.sheets===1?' sheet':' sheets') + ' · ' + fmtNum(i.rows) + ' rows';
+    filterBarEl.classList.remove('show');
+    selectSP('home');
+  }
 }
 
 /* =========================================================
@@ -3255,8 +4338,25 @@ async function handleFile(file){
   if(!file) return;
   showBootLoader('Reading <b>'+esc(file.name)+'</b>&hellip;');
   await wait(300);
+  let wb;
   try{
-    const records = await parseWorkbookFile(file);
+    wb = XLSX.read(await file.arrayBuffer(), {type:'array'});
+  }catch(err){
+    console.error(err);
+    showUploadScreen(err && err.message ? esc(err.message) : 'Unexpected file format.');
+    return;
+  }
+  MODULES = { dispatch:false, sp:false, dispatchErr:'', spErr:'' };
+
+  /* ---- Module 2: Short Product & Tonnage ---- */
+  showBootLoader('Reading Short Products &amp; Inv Wt&hellip;');
+  await wait(150);
+  const sp = window.SPDash ? window.SPDash.load(wb, file.name) : { ok:false, error:'Short Product module did not load.' };
+  MODULES.sp = !!sp.ok; MODULES.spErr = sp.ok ? '' : (sp.error || 'Unknown error');
+
+  /* ---- Module 1: plant-wise Dispatch ---- */
+  try{
+    const records = parseWorkbookRecords(wb);
     if(!records.length) throw new Error('The workbook has no data rows.');
     const sheetCount = new Set(records.map(r=>r.Plant)).size;
     showBootLoader('Normalizing '+sheetCount+' sheet'+(sheetCount===1?'':'s')+'&hellip;');
@@ -3275,9 +4375,6 @@ async function handleFile(file){
     const workbookAvailableDates = computeAvailableDates(records);
 
     const result = computeDashboardData(records, file.name);
-
-    // Keep the report data exactly as before, but make the date filter's
-    // boundaries come from the original Excel workbook.
     if(workbookDateBounds.min) result.meta.dateMin = workbookDateBounds.min;
     if(workbookDateBounds.max) result.meta.dateMax = workbookDateBounds.max;
 
@@ -3285,21 +4382,19 @@ async function handleFile(file){
     FULL_DATA = result;
     BASE_RECORDS = result.records;
     availableDates = workbookAvailableDates;
-    dateRange = {
-      start: workbookDateBounds.min,
-      end: workbookDateBounds.max
-    };
-    try{
-      // Cache only the aggregate, never the raw record list (tens of MB for a
-      // real workbook — well past what localStorage can hold).
-      const { records: _omit, ...cacheable } = result;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({data:cacheable, fileName:file.name, savedAt:Date.now()}));
-    }catch(e){}
-    showApp();
+    dateRange = { start: workbookDateBounds.min, end: workbookDateBounds.max };
+    MODULES.dispatch = true;
   }catch(err){
     console.error(err);
-    showUploadScreen(err && err.message ? err.message : 'Unexpected file format.');
+    DATA = null; FULL_DATA = null; BASE_RECORDS = null; dateRange = null; availableDates = null;
+    MODULES.dispatchErr = err && err.message ? err.message : 'Unexpected file format.';
   }
+
+  if(!MODULES.dispatch && !MODULES.sp){
+    showUploadScreen('<b>Dispatch reports:</b> '+MODULES.dispatchErr+'<br><b>Short Product reports:</b> '+esc(MODULES.spErr));
+    return;
+  }
+  showApp();
 }
 function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
@@ -3313,6 +4408,7 @@ fileInput.addEventListener('change', (e)=>{ const f = e.target.files && e.target
 ['dragenter','dragover'].forEach(evt=> dropzone.addEventListener(evt, (e)=>{ e.preventDefault(); dropzone.classList.add('drag'); }));
 ['dragleave','drop'].forEach(evt=> dropzone.addEventListener(evt, (e)=>{ e.preventDefault(); dropzone.classList.remove('drag'); }));
 dropzone.addEventListener('drop', (e)=>{ const f = e.dataTransfer.files && e.dataTransfer.files[0]; if(f) handleFile(f); });
+['dragover','drop'].forEach(evt=> document.addEventListener(evt, (e)=>{ if(!dropzone.contains(e.target)) e.preventDefault(); }));
 
 document.getElementById('changeFileBtn').addEventListener('click', ()=>{
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
@@ -3321,6 +4417,12 @@ document.getElementById('changeFileBtn').addEventListener('click', ()=>{
   BASE_RECORDS = null;
   dateRange = null;
   availableDates = null;
+  MODULES = { dispatch:false, sp:false, dispatchErr:'', spErr:'' };
+  if(window.SPDash) window.SPDash.reset();
+  currentId = null;
+  destroyCharts(); contentInner.innerHTML = '';
+  document.getElementById('dispatchView').hidden = false;
+  document.getElementById('spView').hidden = true;
   closeCalendar();
   filterBarEl.innerHTML = '';
   filterBarEl.classList.remove('show');
@@ -3380,3 +4482,5 @@ setTimeout(()=>{
   font-size:22px !important;
 }
 </style>
+</body>
+</html>
